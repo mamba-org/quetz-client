@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Dict, Iterator, List, Mapping, Optional, Union
 
 import requests
+from dacite import from_dict
 
 
 @dataclass(frozen=True)
@@ -19,19 +20,21 @@ class Channel:
     members_count: int
     packages_count: int
 
-
 @dataclass(frozen=True)
-class ChannelMember:
-    username: str
-    role: str
-
+class Profile:
+    name: str
+    avatar_url: str
 
 @dataclass(frozen=True)
 class User:
     id: str
     username: str
-    profile: Mapping
+    profile: Profile
 
+@dataclass(frozen=True)
+class ChannelMember:
+    user: User
+    role: str
 
 @dataclass(frozen=True)
 class Role:
@@ -91,7 +94,8 @@ class QuetzClient:
         response = self.session.get(url=url)
         response.raise_for_status()
         for member_json in response.json():
-            yield ChannelMember(**member_json)
+            print(member_json)
+            yield from_dict(ChannelMember, member_json)
 
     def yield_users(self, query: str = "", limit: int = 20) -> Iterator[User]:
         url = f"{self.url}/api/paginated/users"

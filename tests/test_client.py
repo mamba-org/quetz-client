@@ -5,6 +5,7 @@ import pytest
 from quetz_client.client import Channel, ChannelMember, QuetzClient
 
 from .conftest import temporary_package_file
+from dacite import from_dict
 
 
 def test_yield_channels(quetz_client):
@@ -15,10 +16,10 @@ def test_yield_channels(quetz_client):
     assert {channel.name for channel in channels} == set(expected_channel_names)
 
 
-def test_yield_channel_members(quetz_client: QuetzClient, expected_channel_members):
+def test_yield_channel_members(live_quetz_client: QuetzClient, expected_channel_members):
     channel = "a"
-    channel_members = set(quetz_client.yield_channel_members(channel=channel))
-    assert {ChannelMember(**ecm) for ecm in expected_channel_members} == channel_members
+    channel_members = set(live_quetz_client.yield_channel_members(channel=channel))
+    assert {from_dict(ChannelMember, ecm) for ecm in expected_channel_members} == channel_members
 
 
 def test_yield_users(quetz_client: QuetzClient, expected_users):
@@ -177,10 +178,12 @@ def test_yield_packages(quetz_client: QuetzClient, expected_packages):
 
 
 def test_post_file_to_channel(
-    quetz_client: QuetzClient,
+    live_quetz_client: QuetzClient,
     requests_mock,
     test_url: str,
 ):
+
+
     channel = "a"
 
     url_matcher = re.compile(
@@ -193,6 +196,8 @@ def test_post_file_to_channel(
         "https://conda.anaconda.org/conda-forge/linux-64/xtensor-0.16.1-0.tar.bz2",
         real_http=True,
     )
+
+    # breakpoint()
 
     with temporary_package_file() as file:
         quetz_client.post_file_to_channel(channel, file)

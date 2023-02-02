@@ -2,13 +2,21 @@ import re
 import shutil
 from contextlib import contextmanager
 from pathlib import Path
+import socket
 from tempfile import NamedTemporaryFile
+import time
 from typing import Iterator
 
 import pytest
 import requests
 
-from quetz_client.client import QuetzClient
+from quetz_client.client import QuetzClient, User
+
+from quetz.cli import run
+
+from requests_mock import ANY
+
+from dacite import from_dict
 
 
 @contextmanager
@@ -27,8 +35,70 @@ def test_url():
 
 
 @pytest.fixture
+def live_url():
+    return "http://localhost:8000"
+
+def wait_for_port(port: int, host: str = 'localhost', timeout: float = 5.0):
+    """Wait until a port starts accepting TCP connections.
+    Args:
+        port: Port number.
+        host: Host address on which the port should exist.
+        timeout: In seconds. How long to wait before raising errors.
+    Raises:
+        TimeoutError: The port isn't accepting connection after time specified in `timeout`.
+    """
+    start_time = time.perf_counter()
+    while True:
+        try:
+            with socket.create_connection((host, port), timeout=timeout):
+                break
+        except OSError as ex:
+            time.sleep(0.01)
+            if time.perf_counter() - start_time >= timeout:
+                raise TimeoutError('Waited too long for the port {} on host {} to start accepting '
+                                   'connections.'.format(port, host)) from ex
+
+
+@pytest.fixture(scope="module", autouse=True)
+def start_server():
+    """Start the server in a separate thread"""
+    import subprocess
+    server_process = subprocess.Popen([
+        "/home/simon/mambaforge/envs/quetz-client/bin/quetz",
+        "run",
+        "quetz_test",
+        "--copy-conf",
+        "/home/simon/quetz-client/dev_config.toml",
+        "--dev",
+        "--delete"
+    ])
+    wait_for_port(8000)
+
+    yield
+
+    server_process.terminate()
+    server_process.wait()
+
+
+@pytest.fixture
 def quetz_client(test_url):
     return QuetzClient(url=test_url, session=requests.Session())
+
+@pytest.fixture
+def authed_session(live_url):
+    session = requests.Session()
+    response = session.get(f"{live_url}/api/dummylogin/alice")
+    assert response.status_code == 200
+    return session
+
+@pytest.fixture
+def live_quetz_client(live_url, requests_mock, authed_session):
+    # Relay matching requests to the real server
+    localhost_matcher = re.compile(re.escape(live_url))
+    requests_mock.register_uri(ANY, localhost_matcher, real_http=True)
+
+    """authenticated client"""
+    return QuetzClient(url=live_url, session=authed_session)
 
 
 @pytest.fixture(autouse=True)
@@ -111,8 +181,72 @@ def mock_yield_channels_4(requests_mock, test_url):
 
 
 @pytest.fixture
-def expected_channel_members():
-    return [{"username": "u1", "role": "owner"}, {"username": "u2", "role": "member"}]
+def expected_channel_members(live_alice):
+    return [{
+        'role': 'owner', 
+        'user': {
+            'id': live_alice.id, 
+            'username': 'alice', 
+            'profile': {
+                'name': 'Alice',
+                'avatar_url': '/avatar.jpg'
+            }
+        }
+    }]
+
+# @pytest.fixture(autouse=True)
+# def live_users
+
+@pytest.fixture(autouse=True)
+def live_channel(authed_session, live_url):
+    # Add channel a to the live server
+    response = authed_session.post(
+        f"{live_url}/api/channels",
+        json={
+            "name": "a",
+            "description": "descr a",
+            "private": True,
+            "size_limit": None,
+            "ttl": 36000,
+            "mirror_channel_url": None,
+            "mirror_mode": None,
+        },
+    )
+    assert response.status_code == 201
+
+
+@pytest.fixture(autouse=True)
+def live_users(authed_session, live_url):
+    # Get the live users alice, bob, carol, and dave
+    response = authed_session.get(f"{live_url}/api/users")
+    assert response.status_code == 200
+    users = response.json()
+    assert len(users) == 4
+    assert users[0]["username"] == "alice"
+    assert users[1]["username"] == "bob"
+    assert users[2]["username"] == "carol"
+    assert users[3]["username"] == "dave"
+
+    # Turn json into users
+    return [from_dict(User, u) for u in users]
+
+@pytest.fixture
+def live_alice(live_users):
+    alices = [u for u in live_users if u.username == "alice"]
+    assert len(alices) == 1
+    return alices[0]
+
+@pytest.fixture(autouse=True)
+def live_channel_members(authed_session, live_url, live_alice):
+    # Add alice to channel a
+    response = authed_session.post(
+        f"{live_url}/api/channels/a/members",
+        json={
+            "username": live_alice.username,
+            "role": "owner",
+        },
+    )
+    assert response.status_code == 201
 
 
 @pytest.fixture(autouse=True)
