@@ -17,10 +17,10 @@ jobs:
 
       - name: Install mamba & create environment
         uses: mamba-org/provision-with-micromamba@v15
-        with:
-          extra-specs:
-            pytest-md
-            pytest-emoji  
+        # with:
+        #   extra-specs:
+        #     pytest-md
+        #     pytest-emoji
 
       - name: Install quetz-client
         shell: bash -l {0}
@@ -29,8 +29,8 @@ jobs:
 
       - name: Run pytest
         uses: pavelzw/pytest-action@v2
-        with:
-          verbose: true
-          emoji: true
-          job-summary: true
-          click-to-expand: true
+        # with:
+        #   verbose: true
+        #   emoji: true
+        #   job-summary: true
+        #   click-to-expand: true
