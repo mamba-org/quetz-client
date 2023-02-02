@@ -17,11 +17,12 @@ jobs:
     name: Run tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.3.0
 
       - name: Install mamba & create environment
         uses: mamba-org/provision-with-micromamba@v15
         with:
+          cache-env: true
           extra-specs: |
             pytest-md
             pytest-emoji
@@ -45,8 +46,6 @@ jobs:
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3.3.0
-        with:
-          ref: ${{ github.head_ref }}
       - name: Install Python 3.11
         uses: actions/setup-python@v4
       - name: Run pre-commit checks
