@@ -32,8 +32,22 @@ jobs:
 
       - name: Run pytest
         uses: pavelzw/pytest-action@v2
-        # with:
-        #   verbose: true
-        #   emoji: true
-        #   job-summary: true
-        #   click-to-expand: true
+        with:
+          verbose: true
+          emoji: true
+          job-summary: true
+          click-to-expand: true
+
+  pre-commit-checks:
+    name: Run pre-commit checks
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3.3.0
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Install Python 3.11
+        uses: actions/setup-python@v4
+      - name: Run pre-commit checks
+        uses: pre-commit/action@v3.0.0
