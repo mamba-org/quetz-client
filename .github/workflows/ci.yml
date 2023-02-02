@@ -38,8 +38,8 @@ jobs:
           job-summary: true
           click-to-expand: true
 
-  pre-commit-checks:
-    name: Run pre-commit checks
+  pre-commit:
+    name: Run pre-commit
     timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
