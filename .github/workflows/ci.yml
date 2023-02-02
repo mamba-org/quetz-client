@@ -2,18 +2,25 @@ name: Run tests
 
 on:
   push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
 
 jobs:
   run_tests:
+    name: Run tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
       - name: Install mamba & create environment
         uses: mamba-org/provision-with-micromamba@main
+
+      - name: Install quetz-client
+        run: |
+          pip install -e .
 
       - name: Run pytest
         uses: pavelzw/pytest-action@v2
