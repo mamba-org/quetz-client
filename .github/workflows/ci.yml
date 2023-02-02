@@ -13,8 +13,8 @@ defaults:
     shell: bash -l {0}
 
 jobs:
-  run_tests:
-    name: Run tests
+  pytest:
+    name: Run pytest
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
