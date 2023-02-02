@@ -1,4 +1,4 @@
-name: Run tests
+name: CI
 
 on:
   push:
@@ -13,8 +13,8 @@ defaults:
     shell: bash -l {0}
 
 jobs:
-  run_tests:
-    name: Run tests
+  pytest:
+    name: Run pytest
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3.3.0
@@ -39,8 +39,8 @@ jobs:
           job-summary: true
           click-to-expand: true
 
-  pre-commit-checks:
-    name: Run pre-commit checks
+  pre-commit:
+    name: Run pre-commit
     timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
