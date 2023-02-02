@@ -1,0 +1,24 @@
+name: Run tests
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install mamba & create environment
+        uses: mamba-org/provision-with-micromamba@main
+
+      - name: Run pytest
+        uses: pavelzw/pytest-action@v2
+        with:
+          verbose: true
+          emoji: true
+          job-summary: true
+          click-to-expand: true
