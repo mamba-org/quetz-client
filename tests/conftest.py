@@ -29,12 +29,12 @@ def temporary_package_file() -> Iterator[Path]:
             yield Path(file.name)
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def test_url():
     return "https://test.server"
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def live_url():
     return "http://localhost:8000"
 
@@ -91,7 +91,7 @@ def authed_session(live_url):
     assert response.status_code == 200
     return session
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def live_quetz_client(live_url, requests_mock, authed_session):
     # Relay matching requests to the real server
     localhost_matcher = re.compile(re.escape(live_url))
@@ -180,7 +180,7 @@ def mock_yield_channels_4(requests_mock, test_url):
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def expected_channel_members(live_alice):
     return [{
         'role': 'owner', 
@@ -215,7 +215,7 @@ def live_post_channel(authed_session, live_url):
     assert response.status_code == 201
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope="module")
 def live_users(authed_session, live_url):
     # Get the live users alice, bob, carol, and dave
     response = authed_session.get(f"{live_url}/api/users")
@@ -230,7 +230,7 @@ def live_users(authed_session, live_url):
     # Turn json into users
     return [from_dict(User, u) for u in users]
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def live_alice(live_users):
     alices = [u for u in live_users if u.username == "alice"]
     assert len(alices) == 1
