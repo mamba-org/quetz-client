@@ -14,7 +14,7 @@ from quetz_client.client import QuetzClient, User
 
 from quetz.cli import run
 
-from requests_mock import ANY
+from requests_mock import ANY, Mocker
 
 from dacite import from_dict
 
@@ -59,10 +59,11 @@ def wait_for_port(port: int, host: str = 'localhost', timeout: float = 5.0):
                                    'connections.'.format(port, host)) from ex
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(scope="module")
 def start_server():
     """Start the server in a separate thread"""
     path_to_quetz = "/home/simon/mambaforge/envs/quetz-client/bin/quetz" # "/home/runner/micromamba-root/envs/quetz-client/bin/quetz"
+    # breakpoint()
     import subprocess
     server_process = subprocess.Popen([
         path_to_quetz,
@@ -88,20 +89,18 @@ def quetz_client(test_url):
     return QuetzClient(url=test_url, session=requests.Session())
 
 @pytest.fixture(scope="module")
-def authed_session(live_url):
+def authed_session(live_url, start_server):
     session = requests.Session()
     response = session.get(f"{live_url}/api/dummylogin/alice")
     assert response.status_code == 200
     return session
 
 @pytest.fixture(scope="module")
-def live_quetz_client(live_url, requests_mock, authed_session):
+def live_quetz_client(live_url, authed_session, start_server):
     # Relay matching requests to the real server
-    localhost_matcher = re.compile(re.escape(live_url))
-    requests_mock.register_uri(ANY, localhost_matcher, real_http=True)
-
-    """authenticated client"""
-    return QuetzClient(url=live_url, session=authed_session)
+    with Mocker(session=authed_session) as m:
+        m.register_uri(ANY, re.compile(re.escape(live_url)), real_http=True)
+        yield QuetzClient(url=live_url, session=authed_session)
 
 
 @pytest.fixture(autouse=True)

@@ -17,6 +17,7 @@ def test_yield_channels(quetz_client):
 
 
 def test_yield_channel_members(live_quetz_client: QuetzClient, expected_channel_members):
+    # breakpoint()
     channel = "a"
     channel_members = set(live_quetz_client.yield_channel_members(channel=channel))
     assert {from_dict(ChannelMember, ecm) for ecm in expected_channel_members} == channel_members
@@ -178,12 +179,10 @@ def test_yield_packages(quetz_client: QuetzClient, expected_packages):
 
 
 def test_post_file_to_channel(
-    live_quetz_client: QuetzClient,
+    quetz_client: QuetzClient,
     requests_mock,
     test_url: str,
 ):
-
-
     channel = "a"
 
     url_matcher = re.compile(
