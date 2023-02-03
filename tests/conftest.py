@@ -62,9 +62,10 @@ def wait_for_port(port: int, host: str = 'localhost', timeout: float = 5.0):
 @pytest.fixture(scope="module", autouse=True)
 def start_server():
     """Start the server in a separate thread"""
+    path_to_quetz = "/home/simon/mambaforge/envs/quetz-client/bin/quetz" # "/home/runner/micromamba-root/envs/quetz-client/bin/quetz"
     import subprocess
     server_process = subprocess.Popen([
-        "/home/runner/micromamba-root/envs/quetz-client/bin/quetz",
+        path_to_quetz,
         "run",
         "quetz_test",
         "--copy-conf",
@@ -72,6 +73,8 @@ def start_server():
         "--dev",
         "--delete"
     ])
+    if server_process.poll() is not None:
+        raise RuntimeError("Server process failed to start")
     wait_for_port(8000)
 
     yield
