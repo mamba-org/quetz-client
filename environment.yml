@@ -19,3 +19,4 @@ dependencies:
   - requests-mock
   - httpx
   - fire
+  - dacite
