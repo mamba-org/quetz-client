@@ -64,11 +64,11 @@ def start_server():
     """Start the server in a separate thread"""
     import subprocess
     server_process = subprocess.Popen([
-        "/home/simon/mambaforge/envs/quetz-client/bin/quetz",
+        "/home/runner/micromamba-root/envs/quetz-client/bin/quetz",
         "run",
         "quetz_test",
         "--copy-conf",
-        "/home/simon/quetz-client/dev_config.toml",
+        "dev_config.toml",
         "--dev",
         "--delete"
     ])
