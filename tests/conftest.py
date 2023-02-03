@@ -197,8 +197,8 @@ def expected_channel_members(live_alice):
 # @pytest.fixture(autouse=True)
 # def live_users
 
-@pytest.fixture(autouse=True)
-def live_channel(authed_session, live_url):
+@pytest.fixture(autouse=True, scope="module")
+def live_post_channel(authed_session, live_url):
     # Add channel a to the live server
     response = authed_session.post(
         f"{live_url}/api/channels",
@@ -236,8 +236,8 @@ def live_alice(live_users):
     assert len(alices) == 1
     return alices[0]
 
-@pytest.fixture(autouse=True)
-def live_channel_members(authed_session, live_url, live_alice):
+@pytest.fixture(autouse=True, scope="module")
+def live_post_channel_members(authed_session, live_url, live_alice):
     # Add alice to channel a
     response = authed_session.post(
         f"{live_url}/api/channels/a/members",
