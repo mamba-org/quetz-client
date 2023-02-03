@@ -84,7 +84,7 @@ def start_server():
 def quetz_client(test_url):
     return QuetzClient(url=test_url, session=requests.Session())
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def authed_session(live_url):
     session = requests.Session()
     response = session.get(f"{live_url}/api/dummylogin/alice")
