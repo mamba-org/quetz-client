@@ -4,8 +4,9 @@ git clone https://github.com/mamba-org/quetz.git
 
 pip install -e ./quetz-client
 micromamba install quetz
+micromamba install sqlalchemy=1.4.46
 
-quetz run test_quetz --copy-conf ./quetz/dev_config.toml --dev --reload > quetz.log
+quetz run test_quetz --copy-conf ./quetz/dev_config.toml --dev --reload > quetz.log &
 export QUETZ_API_KEY=(sed -n 's/.*key created for user.*: \(.*\)/\1/p' quetz.log)
 
 bash ./quetz/download-test-package.sh
