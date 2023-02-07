@@ -1,7 +1,7 @@
 git clone https://github.com/mamba-org/quetz.git
 
 pip install -e ./quetz-client
-pip install -e ./quetz
+mamba install quetz
 
 quetz run test_quetz --copy-conf ./quetz/dev_config.toml --dev --reload > quetz.log
 export QUETZ_API_KEY=(sed -n 's/.*key created for user.*: \(.*\)/\1/p' quetz.log)

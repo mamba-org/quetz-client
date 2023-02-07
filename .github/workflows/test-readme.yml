@@ -20,6 +20,7 @@ jobs:
         uses: mamba-org/provision-with-micromamba@v15
         with:
           cache-env: true
+          environment-file: quetz-client/environment.yml
 
       - name: Run README script
         run: |
