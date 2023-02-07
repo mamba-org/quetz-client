@@ -1,0 +1,26 @@
+name: Test example upload and installation
+
+on:
+  workflow_dispatch
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  test-readme:
+    name: Text example upload and installation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.3.0
+        with:
+          path: quetz-client
+
+      - name: Install mamba & create environment
+        uses: mamba-org/provision-with-micromamba@v15
+        with:
+          cache-env: true
+
+      - name: Run README script
+        run: |
+          ./quetz-client/.github/workflows/test-readme.sh
