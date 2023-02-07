@@ -163,7 +163,7 @@ class QuetzClient:
         for user_json in self._yield_paginated(url=url, params=params, limit=limit):
             yield Package(**user_json)
 
-    def post_file_to_channel(self, channel: str, force: bool = False, *files: Path):
+    def post_file_to_channel(self, channel: str, files: Path, force: bool = False):
         had_error = False
         for file in files:
             url = f"{self.url}/api/channels/{channel}/upload/{file.name}"
