@@ -24,4 +24,4 @@ jobs:
 
       - name: Run README script
         run: |
-          ./quetz-client/.github/workflows/test-readme.sh
+          bash ./quetz-client/.github/workflows/test-readme.sh
