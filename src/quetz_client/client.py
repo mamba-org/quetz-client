@@ -1,6 +1,7 @@
 import hashlib
 from dataclasses import dataclass
 from itertools import count
+import os
 from pathlib import Path
 from typing import Dict, Iterator, List, Mapping, Optional, Union
 
@@ -163,29 +164,32 @@ class QuetzClient:
         for user_json in self._yield_paginated(url=url, params=params, limit=limit):
             yield Package(**user_json)
 
-    def post_file_to_channel(self, channel: str, force: bool = False, *files: str):
+    def post_files_to_channel(self, channel: str, *files: str):
         had_error = False
         for file in files:
             file = Path(file)
             url = f"{self.url}/api/channels/{channel}/upload/{file.name}"
             body = open(file, "rb")
-
-            upload_hash = hashlib.sha256(body.read()).hexdigest()
+            body_bytes = body.read()
+            
+            upload_hash = hashlib.sha256(body_bytes).hexdigest()
 
             params: Dict[str, Union[str, int]] = {
-                "force": force,
+                "force": False,
                 "sha256": upload_hash,
             }
             try:
                 response = self.session.post(
                     url=url,
-                    data=body,
+                    data=body_bytes,
                     params=params,
                 )
                 response.raise_for_status()
             except requests.HTTPError as e:
                 print(f"Could not upload {file.name}: {e}")
                 had_error = True
+            
+            body.close()
 
         if had_error:
             raise RuntimeError("Could not upload all files")
