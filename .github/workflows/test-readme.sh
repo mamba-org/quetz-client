@@ -13,6 +13,6 @@ export QUETZ_SERVER_URL=http://localhost:8000
 
 bash ./quetz/download-test-package.sh
 
-quetz-client post_file_to_channel channel0 xtensor/linux-64/xtensor-0.16.1-0.tar.bz2 # xtensor/osx-64/xtensor-0.16.1-0.tar.bz2
+quetz-client post_files_to_channel channel0 xtensor/linux-64/xtensor-0.16.1-0.tar.bz2 # xtensor/osx-64/xtensor-0.16.1-0.tar.bz2
 
 micromamba install --strict-channel-priority -c http://localhost:8000/get/channel0 -c conda-forge xtensor
