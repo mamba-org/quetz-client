@@ -9,6 +9,7 @@ micromamba install -y sqlalchemy=1.4.46
 quetz run test_quetz --copy-conf ./quetz/dev_config.toml --dev --reload > quetz.log &
 sleep 5
 export QUETZ_API_KEY=(sed -n 's/.*key created for user.*: \(.*\)/\1/p' quetz.log)
+echo $QUETZ_API_KEY
 export QUETZ_SERVER_URL=http://localhost:8000
 
 bash ./quetz/download-test-package.sh
