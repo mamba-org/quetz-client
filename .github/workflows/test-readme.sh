@@ -1,11 +1,11 @@
 set -e
 
-git clone https://github.com/simonbohnen/quetz.git
+git clone -b fix-upload-endpoint https://github.com/simonbohnen/quetz.git
 
 pip install -e ./quetz-client
 # micromamba uninstall -y quetz
-pip install -e ./quetz
 micromamba install -y sqlalchemy=1.4.46
+pip install -e ./quetz
 
 quetz run test_quetz --copy-conf ./quetz/dev_config.toml --dev --reload > quetz.log &
 sleep 15
