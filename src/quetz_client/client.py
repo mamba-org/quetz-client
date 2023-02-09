@@ -1,7 +1,6 @@
 import hashlib
 from dataclasses import dataclass
 from itertools import count
-import os
 from pathlib import Path
 from typing import Dict, Iterator, List, Mapping, Optional, Union
 
@@ -167,11 +166,11 @@ class QuetzClient:
     def post_files_to_channel(self, channel: str, *files: str):
         had_error = False
         for file in files:
-            file = Path(file)
-            url = f"{self.url}/api/channels/{channel}/upload/{file.name}"
-            body = open(file, "rb")
+            file_path = Path(file)
+            url = f"{self.url}/api/channels/{channel}/upload/{file_path.name}"
+            body = open(file_path, "rb")
             body_bytes = body.read()
-            
+
             upload_hash = hashlib.sha256(body_bytes).hexdigest()
 
             params: Dict[str, Union[str, int]] = {
@@ -186,9 +185,9 @@ class QuetzClient:
                 )
                 response.raise_for_status()
             except requests.HTTPError as e:
-                print(f"Could not upload {file.name}: {e}")
+                print(f"Could not upload {file_path.name}: {e}")
                 had_error = True
-            
+
             body.close()
 
         if had_error:
