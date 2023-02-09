@@ -3,6 +3,7 @@ set -e
 git clone https://github.com/simonbohnen/quetz.git
 
 pip install -e ./quetz-client
+micromamba uninstall -y quetz
 pip install -e ./quetz
 micromamba install -y sqlalchemy=1.4.46
 
