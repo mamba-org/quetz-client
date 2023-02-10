@@ -1,6 +1,6 @@
 set -e
 
-git clone -b fix-upload-endpoint https://github.com/simonbohnen/quetz.git
+git clone -b fix-upload-again https://github.com/simonbohnen/quetz.git
 
 pip install -e ./quetz-client
 # micromamba uninstall -y quetz
