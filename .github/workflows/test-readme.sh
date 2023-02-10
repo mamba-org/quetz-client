@@ -2,7 +2,7 @@ set -e
 
 # Run the steps described in the quetz README.md for uploading and installing a sample package
 
-git clone -b fix-upload-again https://github.com/simonbohnen/quetz.git
+git clone https://github.com/mamba-org/quetz.git
 
 pip install -e ./quetz-client
 # micromamba uninstall -y quetz
