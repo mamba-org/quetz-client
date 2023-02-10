@@ -2,7 +2,7 @@ import hashlib
 from dataclasses import dataclass
 from itertools import count
 from pathlib import Path
-from typing import Dict, Iterator, List, Mapping, Optional, Union
+from typing import Dict, Iterator, List, Optional, Union
 
 import requests
 from dacite import from_dict
@@ -20,10 +20,12 @@ class Channel:
     members_count: int
     packages_count: int
 
+
 @dataclass(frozen=True)
 class Profile:
     name: str
     avatar_url: str
+
 
 @dataclass(frozen=True)
 class User:
@@ -31,10 +33,12 @@ class User:
     username: str
     profile: Profile
 
+
 @dataclass(frozen=True)
 class ChannelMember:
     user: User
     role: str
+
 
 @dataclass(frozen=True)
 class Role:

@@ -1,22 +1,18 @@
 import re
 import shutil
+import socket
+import time
 from contextlib import contextmanager
 from pathlib import Path
-import socket
 from tempfile import NamedTemporaryFile
-import time
 from typing import Iterator
 
 import pytest
 import requests
-
-from quetz_client.client import QuetzClient, User
-
-from quetz.cli import run
-
+from dacite import from_dict
 from requests_mock import ANY, Mocker
 
-from dacite import from_dict
+from quetz_client.client import QuetzClient, User
 
 
 @contextmanager
@@ -38,7 +34,8 @@ def test_url():
 def live_url():
     return "http://localhost:8000"
 
-def wait_for_port(port: int, host: str = 'localhost', timeout: float = 5.0):
+
+def wait_for_port(port: int, host: str = "localhost", timeout: float = 5.0):
     """Wait until a port starts accepting TCP connections.
     Args:
         port: Port number.
@@ -55,25 +52,30 @@ def wait_for_port(port: int, host: str = 'localhost', timeout: float = 5.0):
         except OSError as ex:
             time.sleep(0.01)
             if time.perf_counter() - start_time >= timeout:
-                raise TimeoutError('Waited too long for the port {} on host {} to start accepting '
-                                   'connections.'.format(port, host)) from ex
+                raise TimeoutError(
+                    "Waited too long for the port {} on host {} to start accepting "
+                    "connections.".format(port, host)
+                ) from ex
 
 
 @pytest.fixture(scope="module")
 def start_server():
     """Start the server in a separate thread"""
-    path_to_quetz = "/home/runner/micromamba-root/envs/quetz-client/bin/quetz" # "/home/simon/mambaforge/envs/quetz-client/bin/quetz"
+    path_to_quetz = "/home/runner/micromamba-root/envs/quetz-client/bin/quetz"  # "/home/simon/mambaforge/envs/quetz-client/bin/quetz"
     # breakpoint()
     import subprocess
-    server_process = subprocess.Popen([
-        path_to_quetz,
-        "run",
-        "quetz_test",
-        "--copy-conf",
-        "dev_config.toml",
-        "--dev",
-        "--delete"
-    ])
+
+    server_process = subprocess.Popen(
+        [
+            path_to_quetz,
+            "run",
+            "quetz_test",
+            "--copy-conf",
+            "dev_config.toml",
+            "--dev",
+            "--delete",
+        ]
+    )
     if server_process.poll() is not None:
         raise RuntimeError("Server process failed to start")
     wait_for_port(8000)
@@ -88,12 +90,14 @@ def start_server():
 def quetz_client(test_url):
     return QuetzClient(url=test_url, session=requests.Session())
 
+
 @pytest.fixture(scope="module")
 def authed_session(live_url, start_server):
     session = requests.Session()
     response = session.get(f"{live_url}/api/dummylogin/alice")
     assert response.status_code == 200
     return session
+
 
 @pytest.fixture(scope="module")
 def live_quetz_client(live_url, authed_session, start_server):
@@ -184,20 +188,21 @@ def mock_yield_channels_4(requests_mock, test_url):
 
 @pytest.fixture(scope="module")
 def expected_channel_members(live_alice):
-    return [{
-        'role': 'owner', 
-        'user': {
-            'id': live_alice.id, 
-            'username': 'alice', 
-            'profile': {
-                'name': 'Alice',
-                'avatar_url': '/avatar.jpg'
-            }
+    return [
+        {
+            "role": "owner",
+            "user": {
+                "id": live_alice.id,
+                "username": "alice",
+                "profile": {"name": "Alice", "avatar_url": "/avatar.jpg"},
+            },
         }
-    }]
+    ]
+
 
 # @pytest.fixture(autouse=True)
 # def live_users
+
 
 @pytest.fixture(autouse=True, scope="module")
 def live_post_channel(authed_session, live_url):
@@ -232,11 +237,13 @@ def live_users(authed_session, live_url):
     # Turn json into users
     return [from_dict(User, u) for u in users]
 
+
 @pytest.fixture(scope="module")
 def live_alice(live_users):
     alices = [u for u in live_users if u.username == "alice"]
     assert len(alices) == 1
     return alices[0]
+
 
 @pytest.fixture(autouse=True, scope="module")
 def live_post_channel_members(authed_session, live_url, live_alice):

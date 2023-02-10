@@ -1,11 +1,11 @@
 import re
 
 import pytest
+from dacite import from_dict
 
 from quetz_client.client import Channel, ChannelMember, QuetzClient
 
 from .conftest import temporary_package_file
-from dacite import from_dict
 
 
 def test_yield_channels(quetz_client):
@@ -16,11 +16,15 @@ def test_yield_channels(quetz_client):
     assert {channel.name for channel in channels} == set(expected_channel_names)
 
 
-def test_yield_channel_members(live_quetz_client: QuetzClient, expected_channel_members):
+def test_yield_channel_members(
+    live_quetz_client: QuetzClient, expected_channel_members
+):
     # breakpoint()
     channel = "a"
     channel_members = set(live_quetz_client.yield_channel_members(channel=channel))
-    assert {from_dict(ChannelMember, ecm) for ecm in expected_channel_members} == channel_members
+    assert {
+        from_dict(ChannelMember, ecm) for ecm in expected_channel_members
+    } == channel_members
 
 
 def test_yield_users(quetz_client: QuetzClient, expected_users):
