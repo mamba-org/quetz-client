@@ -1,7 +1,7 @@
-name: Test example upload and installation
+name: Run quetz README
 
 on:
-  pull_request:
+  workflow_dispatch:
 
 defaults:
   run:
@@ -9,7 +9,7 @@ defaults:
 
 jobs:
   test-readme:
-    name: Text example upload and installation
+    name: Run quetz README
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3.3.0

@@ -1,5 +1,7 @@
 set -e
 
+# Run the steps described in the quetz README.md for uploading and installing a sample package
+
 git clone -b fix-upload-again https://github.com/simonbohnen/quetz.git
 
 pip install -e ./quetz-client
@@ -16,7 +18,7 @@ export QUETZ_SERVER_URL=http://localhost:8000
 
 bash ./quetz/download-test-package.sh
 
-quetz-client post_files_to_channel channel0 xtensor/linux-64/xtensor-0.16.1-0.tar.bz2 # xtensor/osx-64/xtensor-0.16.1-0.tar.bz2
+quetz-client post_files_to_channel channel0 xtensor/linux-64/xtensor-0.16.1-0.tar.bz2 xtensor/osx-64/xtensor-0.16.1-0.tar.bz2
 
 sleep 2
 
