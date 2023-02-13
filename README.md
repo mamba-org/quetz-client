@@ -1,8 +1,16 @@
 # quetz-client
 
-A Python client to interact with a Quetz server.
+A Python client to interact with a Quetz server. Compatible with `quetz>=0.4.0`.
 
 ## Installation
+
+### From conda-forge
+
+```bash
+mamba install quetz-client
+```
+
+### From this repo
 
 You can install the package in development mode using:
 
