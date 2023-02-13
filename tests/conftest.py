@@ -12,7 +12,7 @@ import requests
 from dacite import from_dict
 from requests_mock import ANY, Mocker
 
-from quetz_client.client import QuetzClient, User
+from quetz_client.client import Channel, QuetzClient, User
 
 
 @contextmanager
@@ -26,12 +26,12 @@ def temporary_package_file() -> Iterator[Path]:
 
 
 @pytest.fixture(scope="module")
-def test_url():
+def mock_server():
     return "https://test.server"
 
 
 @pytest.fixture(scope="module")
-def live_url():
+def live_server():
     return "http://localhost:8000"
 
 
@@ -61,7 +61,9 @@ def wait_for_port(port: int, host: str = "localhost", timeout: float = 5.0):
 @pytest.fixture(scope="module")
 def start_server():
     """Start the server in a separate thread"""
-    path_to_quetz = "/home/runner/micromamba-root/envs/quetz-client/bin/quetz"  # "/home/simon/mambaforge/envs/quetz-client/bin/quetz"
+    # "/home/simon/mambaforge/envs/quetz-client/bin/quetz"
+    # "/home/runner/micromamba-root/envs/quetz-client/bin/quetz"
+    path_to_quetz = "/home/simon/mambaforge/envs/quetz-client/bin/quetz"
     # breakpoint()
     import subprocess
 
@@ -71,7 +73,7 @@ def start_server():
             "run",
             "quetz_test",
             "--copy-conf",
-            "dev_config.toml",
+            "tests/dev_config.toml",
             "--dev",
             "--delete",
         ]
@@ -87,29 +89,34 @@ def start_server():
 
 
 @pytest.fixture
-def quetz_client(test_url):
-    return QuetzClient(url=test_url, session=requests.Session())
+def mock_client(mock_server):
+    return QuetzClient(url=mock_server, session=requests.Session())
 
 
 @pytest.fixture(scope="module")
-def authed_session(live_url, start_server):
+def authed_session(live_server, start_server):
     session = requests.Session()
-    response = session.get(f"{live_url}/api/dummylogin/alice")
+    response = session.get(f"{live_server}/api/dummylogin/alice")
     assert response.status_code == 200
     return session
 
 
 @pytest.fixture(scope="module")
-def live_quetz_client(live_url, authed_session, start_server):
+def live_client(live_server, authed_session):
     # Relay matching requests to the real server
     with Mocker(session=authed_session) as m:
-        m.register_uri(ANY, re.compile(re.escape(live_url)), real_http=True)
-        yield QuetzClient(url=live_url, session=authed_session)
+        m.register_uri(ANY, re.compile(re.escape(live_server)), real_http=True)
+        yield QuetzClient(url=live_server, session=authed_session)
+
+
+@pytest.fixture(params=[True, False])
+def client(request, live_client, mock_client):
+    return live_client if request.param else mock_client
 
 
 @pytest.fixture(autouse=True)
-def mock_default_paginated_empty(requests_mock, test_url):
-    url = re.escape(f"{test_url}/api/paginated/") + r".*\?.*skip=20.*"
+def mock_default_paginated_empty(requests_mock, mock_server):
+    url = re.escape(f"{mock_server}/api/paginated/") + r".*\?.*skip=20.*"
     requests_mock.get(
         re.compile(url),
         json={
@@ -119,96 +126,75 @@ def mock_default_paginated_empty(requests_mock, test_url):
     )
 
 
-@pytest.fixture(autouse=True)
-def mock_yield_channels_0(requests_mock, test_url):
-    url = f"{test_url}/api/paginated/channels?skip=0"
-    mock_resp = {
-        "pagination": {"skip": 0, "limit": 2, "all_records_count": 3},
-        "result": [
-            {
-                "name": "a",
-                "description": "descr a",
-                "private": True,
-                "size_limit": None,
-                "ttl": 36000,
-                "mirror_channel_url": None,
-                "mirror_mode": None,
-                "members_count": 42,
-                "packages_count": 11,
-            },
-            {
-                "name": "b",
-                "description": "descr b",
-                "private": True,
-                "size_limit": None,
-                "ttl": 36000,
-                "mirror_channel_url": None,
-                "mirror_mode": None,
-                "members_count": 42,
-                "packages_count": 11,
-            },
-        ],
-    }
-    requests_mock.get(url, json=mock_resp)
+LIVE_CHANNELS_COUNT = 4
 
 
-@pytest.fixture(autouse=True)
-def mock_yield_channels_2(requests_mock, test_url):
-    url = f"{test_url}/api/paginated/channels?skip=2"
-    mock_resp = {
-        "pagination": {"skip": 2, "limit": 2, "all_records_count": 3},
-        "result": [
-            {
-                "name": "c",
-                "description": "descr c",
-                "private": False,
-                "size_limit": None,
-                "ttl": 36000,
-                "mirror_channel_url": None,
-                "mirror_mode": None,
-                "members_count": 42,
-                "packages_count": 11,
-            }
-        ],
-    }
-    requests_mock.get(url, json=mock_resp)
+@pytest.fixture
+def live_channels(authed_session, live_server, live_post_channel):
+    response = authed_session.get(f"{live_server}/api/channels")
+    assert response.status_code == 200
+
+    channels = [from_dict(Channel, c) for c in response.json()]
+    assert len(channels) == LIVE_CHANNELS_COUNT
+    return channels
 
 
-@pytest.fixture(autouse=True)
-def mock_yield_channels_4(requests_mock, test_url):
-    url = f"{test_url}/api/paginated/channels?skip=4"
-    requests_mock.get(
-        url,
-        json={
-            "pagination": {"skip": 4, "limit": 2, "all_records_count": 3},
-            "result": [],
+def get_channel_json(channels, skip, limit):
+    return {
+        "pagination": {
+            "skip": skip,
+            "limit": limit,
+            "all_records_count": LIVE_CHANNELS_COUNT,
         },
-    )
+        "result": [
+            {
+                "name": channels[i].name,
+                "description": channels[i].description,
+                "private": channels[i].private,
+                "size_limit": channels[i].size_limit,
+                "ttl": channels[i].ttl,
+                "mirror_channel_url": channels[i].mirror_channel_url,
+                "mirror_mode": channels[i].mirror_mode,
+                "members_count": channels[i].members_count,
+                "packages_count": channels[i].packages_count,
+            }
+            for i in range(skip, skip + limit)
+        ],
+    }
 
 
-@pytest.fixture(scope="module")
-def expected_channel_members(live_alice):
-    return [
-        {
-            "role": "owner",
-            "user": {
-                "id": live_alice.id,
-                "username": "alice",
-                "profile": {"name": "Alice", "avatar_url": "/avatar.jpg"},
-            },
-        }
-    ]
+@pytest.fixture
+def expected_channels(live_channels):
+    return get_channel_json(live_channels, 0, LIVE_CHANNELS_COUNT)["result"]
 
 
-# @pytest.fixture(autouse=True)
-# def live_users
+@pytest.fixture
+def expected_channels_0(live_channels):
+    return get_channel_json(live_channels, 0, 2)
+
+
+@pytest.fixture(autouse=True)
+def mock_yield_channels_0(requests_mock, mock_server, expected_channels_0):
+    url = f"{mock_server}/api/paginated/channels?skip=0"
+    requests_mock.get(url, json=expected_channels_0)
+
+
+@pytest.fixture
+def expected_channels_2(live_channels):
+    return get_channel_json(live_channels, 2, 2)
+
+
+@pytest.fixture(autouse=True)
+def mock_yield_channels_2(requests_mock, mock_server, expected_channels_2):
+    url = f"{mock_server}/api/paginated/channels?skip=2"
+    requests_mock.get(url, json=expected_channels_2)
 
 
 @pytest.fixture(autouse=True, scope="module")
-def live_post_channel(authed_session, live_url):
+def live_post_channel(authed_session, live_server):
     # Add channel a to the live server
     response = authed_session.post(
-        f"{live_url}/api/channels",
+        f"{live_server}/api/channels",
         json={
             "name": "a",
             "description": "descr a",
@@ -223,9 +209,9 @@ def live_post_channel(authed_session, live_url):
 
 
 @pytest.fixture(autouse=True, scope="module")
-def live_users(authed_session, live_url):
+def live_users(authed_session, live_server):
     # Get the live users alice, bob, carol, and dave
-    response = authed_session.get(f"{live_url}/api/users")
+    response = authed_session.get(f"{live_server}/api/users")
     assert response.status_code == 200
     users = response.json()
     assert len(users) == 4
@@ -240,52 +226,111 @@ def live_users(authed_session, live_url):
 
 @pytest.fixture(scope="module")
 def live_alice(live_users):
-    alices = [u for u in live_users if u.username == "alice"]
-    assert len(alices) == 1
-    return alices[0]
+    return get_user_with_username(live_users, "alice")
+
+
+@pytest.fixture(scope="module")
+def live_bob(live_users):
+    return get_user_with_username(live_users, "bob")
+
+
+@pytest.fixture(scope="module")
+def live_carol(live_users):
+    return get_user_with_username(live_users, "carol")
+
+
+@pytest.fixture(scope="module")
+def live_dave(live_users):
+    return get_user_with_username(live_users, "dave")
+
+
+def get_user_with_username(users, username):
+    users = [u for u in users if u.username == username]
+    assert len(users) == 1
+    return users[0]
 
 
 @pytest.fixture(autouse=True, scope="module")
-def live_post_channel_members(authed_session, live_url, live_alice):
-    # Add alice to channel a
+def live_post_channel_members(authed_session, live_server):
+    # Add alice & bob to channel a
     response = authed_session.post(
-        f"{live_url}/api/channels/a/members",
+        f"{live_server}/api/channels/a/members",
         json={
-            "username": live_alice.username,
+            "username": "alice",
+            "role": "owner",
+        },
+    )
+    assert response.status_code == 201
+    response = authed_session.post(
+        f"{live_server}/api/channels/a/members",
+        json={
+            "username": "bob",
             "role": "owner",
         },
     )
     assert response.status_code == 201
 
 
+@pytest.fixture(scope="module")
+def expected_channel_members(live_alice, live_bob):
+    return [
+        {
+            "role": "owner",
+            "user": {
+                "id": live_alice.id,
+                "username": "alice",
+                "profile": {"name": "Alice", "avatar_url": "/avatar.jpg"},
+            },
+        },
+        {
+            "role": "owner",
+            "user": {
+                "id": live_bob.id,
+                "username": "bob",
+                "profile": {"name": "Bob", "avatar_url": "/avatar.jpg"},
+            },
+        },
+    ]
+
+
 @pytest.fixture(autouse=True)
-def mock_yield_channel_members(requests_mock, test_url, expected_channel_members):
-    url = f"{test_url}/api/channels/a/members"
+def mock_yield_channel_members(requests_mock, mock_server, expected_channel_members):
+    url = f"{mock_server}/api/channels/a/members"
     requests_mock.get(url, json=expected_channel_members)
 
 
 @pytest.fixture
-def expected_users():
+def expected_users(live_alice, live_bob, live_carol, live_dave):
     return {
         "pagination": {"skip": 0, "limit": 20, "all_records_count": 2},
         "result": [
             {
-                "id": "015744e4-af4f-4bc4-a1a6-0c8ae8d14ddc",
+                "id": live_alice.id,
                 "username": "alice",
                 "profile": {"name": "Alice", "avatar_url": "/avatar.jpg"},
             },
             {
-                "id": "0a518bff-2e77-4ce9-b36e-ace9d50b1496",
+                "id": live_bob.id,
                 "username": "bob",
                 "profile": {"name": "Bob", "avatar_url": "/avatar.jpg"},
+            },
+            {
+                "id": live_carol.id,
+                "username": "carol",
+                "profile": {"name": "Carol", "avatar_url": "/avatar.jpg"},
+            },
+            {
+                "id": live_dave.id,
+                "username": "dave",
+                "profile": {"name": "Dave", "avatar_url": "/avatar.jpg"},
             },
         ],
     }
 
 
 @pytest.fixture(autouse=True)
-def mock_yield_users(requests_mock, test_url, expected_users):
-    url = f"{test_url}/api/paginated/users?skip=0"
+def mock_yield_users(requests_mock, mock_server, expected_users):
+    url = f"{mock_server}/api/paginated/users?skip=0"
     requests_mock.get(url, json=expected_users)
 
 
@@ -317,6 +362,6 @@ def expected_packages():
 
 
 @pytest.fixture(autouse=True)
-def mock_yield_packages(requests_mock, test_url, expected_packages):
-    url = f"{test_url}/api/paginated/channels/channel1/packages?skip=0"
+def mock_yield_packages(requests_mock, mock_server, expected_packages):
+    url = f"{mock_server}/api/paginated/channels/channel1/packages?skip=0"
     requests_mock.get(url, json=expected_packages)
