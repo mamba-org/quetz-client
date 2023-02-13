@@ -1,3 +1,4 @@
+import os
 import re
 import shutil
 import socket
@@ -61,10 +62,10 @@ def wait_for_port(port: int, host: str = "localhost", timeout: float = 5.0):
 @pytest.fixture(scope="module")
 def start_server():
     """Start the server in a separate thread"""
-    # "/home/simon/mambaforge/envs/quetz-client/bin/quetz"
-    # "/home/runner/micromamba-root/envs/quetz-client/bin/quetz"
-    path_to_quetz = "/home/simon/mambaforge/envs/quetz-client/bin/quetz"
-    # breakpoint()
+    path_to_quetz = "/home/runner/micromamba-root/envs/quetz-client/bin/quetz"
+    if not os.path.exists(path_to_quetz):
+        path_to_quetz = "/home/simon/mambaforge/envs/quetz-client/bin/quetz"
+
     import subprocess
 
     server_process = subprocess.Popen(
