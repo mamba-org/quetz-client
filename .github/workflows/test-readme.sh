@@ -5,9 +5,8 @@ set -e
 git clone https://github.com/mamba-org/quetz.git
 
 pip install -e ./quetz-client
-# micromamba uninstall -y quetz
+micromamba install quetz
 micromamba install -y sqlalchemy=1.4.46
-pip install -e ./quetz
 
 quetz run test_quetz --copy-conf ./quetz/dev_config.toml --dev --reload > quetz.log &
 sleep 10
