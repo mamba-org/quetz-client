@@ -12,7 +12,7 @@ def test_yield_channels(client: QuetzClient, expected_channels):
     channels = list(client.yield_channels(limit=2))
     assert len(channels) == 4
     assert isinstance(channels[0], Channel)
-    assert {channel.name for channel in channels} == set(expected_channels)
+    assert {from_dict(Channel, c) for c in expected_channels} == set(channels)
 
 
 def test_yield_channel_members(client: QuetzClient, expected_channel_members):

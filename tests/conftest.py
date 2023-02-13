@@ -190,6 +190,22 @@ def mock_yield_channels_2(requests_mock, mock_server, expected_channels_2):
     requests_mock.get(url, json=expected_channels_2)
 
 
+@pytest.fixture(autouse=True)
+def mock_yield_channels_4(requests_mock, mock_server):
+    url = f"{mock_server}/api/paginated/channels?skip=4"
+    requests_mock.get(
+        url,
+        json={
+            "pagination": {
+                "skip": 4,
+                "limit": 2,
+                "all_records_count": LIVE_CHANNELS_COUNT,
+            },
+            "result": [],
+        },
+    )
+
+
 @pytest.fixture(autouse=True, scope="module")
 def live_post_channel(authed_session, live_server):
     # Add channel a to the live server
