@@ -1,0 +1,27 @@
+name: Run quetz README
+
+on:
+  pull_request:
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  test-readme:
+    name: Run quetz README
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.3.0
+        with:
+          path: quetz-client
+
+      - name: Install mamba & create environment
+        uses: mamba-org/provision-with-micromamba@v15
+        with:
+          cache-env: true
+          environment-file: quetz-client/environment.yml
+
+      - name: Run README script
+        run: |
+          bash ./quetz-client/.github/workflows/test-readme.sh
