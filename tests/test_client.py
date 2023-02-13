@@ -1,5 +1,3 @@
-import re
-
 import pytest
 
 from quetz_client.client import Channel, ChannelMember, QuetzClient
@@ -183,10 +181,8 @@ def test_post_file_to_channel(
 ):
     channel = "a"
 
-    url_matcher = re.compile(
-        f"{test_url}/api/channels/{channel}/upload/\\w*\\?force=False&sha256=\\w*"
-    )
-    requests_mock.register_uri("POST", url_matcher, json=None)
+    url = f"{test_url}/api/channels/{channel}/files/"
+    requests_mock.post(url, json=None)
 
     requests_mock.register_uri(
         "GET",
