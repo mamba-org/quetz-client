@@ -98,7 +98,6 @@ class QuetzClient:
         response = self.session.get(url=url)
         response.raise_for_status()
         for member_json in response.json():
-            print(member_json)
             yield from_dict(ChannelMember, member_json)
 
     def yield_users(self, query: str = "", limit: int = 20) -> Iterator[User]:
