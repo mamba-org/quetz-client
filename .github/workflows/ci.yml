@@ -26,7 +26,11 @@ jobs:
           extra-specs: |
             pytest-md
             pytest-emoji
-            quetz
+
+      - name: Install quetz
+        run: |
+          micromamba install -c conda-forge quetz
+          micromamba install -c conda-forge sqlalchemy=1.4.46
 
       - name: Install quetz-client
         run: |
