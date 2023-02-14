@@ -128,8 +128,8 @@ def client(request, live_client, mock_client):
 
 
 @pytest.fixture(autouse=True)
-def mock_default_paginated_empty(requests_mock, test_url):
-    url = re.escape(f"{test_url}/api/paginated/") + r".*\?.*skip=20.*"
+def mock_default_paginated_empty(requests_mock, mock_server):
+    url = re.escape(f"{mock_server}/api/paginated/") + r".*\?.*skip=20.*"
     requests_mock.get(
         re.compile(url),
         json={
