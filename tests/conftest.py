@@ -14,12 +14,13 @@ from requests_mock import ANY, Mocker
 
 from quetz_client.client import Channel, QuetzClient, User
 
-# Resources creatd here:
+# Resources created here:
 # Channels, channel memberships, packages
 #
 # Resources created by quetz on start:
 # Users: alice, bob, carol, dave
 # API key for one of the users
+# See _fill_test_database in cli.py in quetz
 
 
 @contextmanager
@@ -124,18 +125,6 @@ def live_client(live_server, authed_session):
 @pytest.fixture(params=[True, False])
 def client(request, live_client, mock_client):
     return live_client if request.param else mock_client
-
-
-@pytest.fixture(autouse=True)
-def mock_default_paginated_empty(requests_mock, mock_server):
-    url = re.escape(f"{mock_server}/api/paginated/") + r".*\?.*skip=20.*"
-    requests_mock.get(
-        re.compile(url),
-        json={
-            "pagination": {"skip": 20, "limit": 20, "all_records_count": 19},
-            "result": [],
-        },
-    )
 
 
 def live_channels(authed_session, live_server):

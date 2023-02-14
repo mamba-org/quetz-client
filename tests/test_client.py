@@ -160,7 +160,7 @@ def test_live_delete_channel_member(
         "owner",
     ],
 )
-def test_set_role(
+def test_mock_set_role(
     mock_client: QuetzClient,
     role,
     requests_mock,
@@ -185,7 +185,7 @@ def test_from_token():
     assert quetz_client.session.headers.get("X-API-Key") == token
 
 
-def test_set_channel(
+def test_mock_set_channel(
     mock_client: QuetzClient,
     requests_mock,
     mock_server: str,
@@ -202,7 +202,7 @@ def test_set_channel(
     assert last_request.json()["name"] == channel
 
 
-def test_delete_channel(
+def test_mock_delete_channel(
     mock_client: QuetzClient,
     requests_mock,
     mock_server: str,
@@ -218,7 +218,7 @@ def test_delete_channel(
     assert last_request.method == "DELETE"
 
 
-def test_yield_packages(mock_client: QuetzClient, expected_packages):
+def test_mock_yield_packages(mock_client: QuetzClient, expected_packages):
     channel = "channel1"
     package_set = {
         (p.name, p.url, p.current_version) for p in mock_client.yield_packages(channel)
@@ -266,6 +266,9 @@ def test_live_post_file_to_channel(
         "https://conda.anaconda.org/conda-forge/linux-64/xtensor-0.16.1-0.tar.bz2",
         real_http=True,
     )
+
+    packages = live_client.yield_packages("a")
+    assert len(list(packages)) == 0
 
     with temporary_package_file() as file:
         live_client.post_file_to_channel("a", file)
