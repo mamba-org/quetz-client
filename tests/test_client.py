@@ -39,7 +39,7 @@ def test_yield_users(client: QuetzClient, expected_users):
         "owner",
     ],
 )
-def test_get_role(
+def test_mock_get_role(
     mock_client: QuetzClient,
     role,
     requests_mock,
@@ -50,6 +50,14 @@ def test_get_role(
     requests_mock.get(url, json={"role": role})
     actual_role = mock_client.get_role(username)
     assert next(actual_role).role == role
+
+
+def test_live_get_role(
+    live_client: QuetzClient,
+    live_alice_role,
+):
+    actual_role = live_client.get_role("alice")
+    assert actual_role.role == live_alice_role
 
 
 @pytest.mark.parametrize(
@@ -81,7 +89,7 @@ def test_set_channel_member(
     assert last_request.json()["role"] == role
 
 
-def test_delete_channel_member(
+def test_mock_delete_channel_member(
     mock_client: QuetzClient,
     requests_mock,
     mock_server: str,
@@ -98,6 +106,29 @@ def test_delete_channel_member(
     assert last_request.method == "DELETE"
     assert last_request.qs["username"] == [username]
     assert len(last_request.qs) == 1
+
+
+def test_live_delete_channel_member(
+    authed_session,
+    live_client: QuetzClient,
+    live_post_channel_members,
+):
+    # Check that alice is a member of channel a
+    channel = "a"
+    username = "alice"
+
+    response = authed_session.get(
+        f"{live_client.url}/api/channels/{channel}/members",
+    )
+    assert {u["user"]["username"] for u in response.json()} == {"alice", "bob"}
+
+    live_client.delete_channel_member(username, channel)
+
+    # Check that alice is no longer a member of channel a
+    response = authed_session.get(
+        f"{live_client.url}/api/channels/{channel}/members",
+    )
+    assert {u["user"]["username"] for u in response.json()} == {"bob"}
 
 
 @pytest.mark.parametrize(

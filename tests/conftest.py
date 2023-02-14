@@ -246,6 +246,13 @@ def live_alice(live_users):
     return get_user_with_username(live_users, "alice")
 
 
+@pytest.fixture
+def live_alice_role(authed_session, live_server):
+    response = authed_session.get(f"{live_server}/api/users/alice/role")
+    assert response.status_code == 200
+    return response.json()["role"]
+
+
 @pytest.fixture(scope="module")
 def live_bob(live_users):
     return get_user_with_username(live_users, "bob")
@@ -267,7 +274,7 @@ def get_user_with_username(users, username):
     return users[0]
 
 
-@pytest.fixture(autouse=True, scope="module")
+@pytest.fixture()
 def live_post_channel_members(authed_session, live_server):
     # Add alice & bob to channel a
     response = authed_session.post(
@@ -286,6 +293,22 @@ def live_post_channel_members(authed_session, live_server):
         },
     )
     assert response.status_code == 201
+
+    yield
+
+    # Remove alice & bob from channel a
+    authed_session.delete(
+        f"{live_server}/api/channels/a/members",
+        params={
+            "username": "alice",
+        },
+    )
+    authed_session.delete(
+        f"{live_server}/api/channels/a/members",
+        params={
+            "username": "bob",
+        },
+    )
 
 
 @pytest.fixture(scope="module")
