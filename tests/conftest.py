@@ -127,6 +127,18 @@ def client(request, live_client, mock_client):
     return live_client if request.param else mock_client
 
 
+@pytest.fixture(autouse=True)
+def mock_default_paginated_empty(requests_mock, test_url):
+    url = re.escape(f"{test_url}/api/paginated/") + r".*\?.*skip=20.*"
+    requests_mock.get(
+        re.compile(url),
+        json={
+            "pagination": {"skip": 20, "limit": 20, "all_records_count": 19},
+            "result": [],
+        },
+    )
+
+
 def live_channels(authed_session, live_server):
     response = authed_session.get(f"{live_server}/api/channels")
     assert response.status_code == 200
