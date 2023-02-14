@@ -5,7 +5,6 @@ import socket
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 from typing import Iterator
 
 import pytest
@@ -15,15 +14,27 @@ from requests_mock import ANY, Mocker
 
 from quetz_client.client import Channel, QuetzClient, User
 
+# Resources creatd here:
+# Channels, channel memberships, packages
+#
+# Resources created by quetz on start:
+# Users: alice, bob, carol, dave
+# API key for one of the users
+
 
 @contextmanager
 def temporary_package_file() -> Iterator[Path]:
+    path = Path.home() / "xtensor-0.16.1-0.tar.bz2"
+
+    if path.exists():
+        yield path
+        return
+
     url = "https://conda.anaconda.org/conda-forge/linux-64/xtensor-0.16.1-0.tar.bz2"
     with requests.get(url, stream=True) as response:
-        with NamedTemporaryFile() as file:
-            with open(file.name, "wb") as fp:
-                shutil.copyfileobj(response.raw, fp)
-            yield Path(file.name)
+        with open(path, "wb") as file:
+            shutil.copyfileobj(response.raw, file)
+        yield path
 
 
 @pytest.fixture(scope="module")
@@ -127,16 +138,11 @@ def mock_default_paginated_empty(requests_mock, mock_server):
     )
 
 
-LIVE_CHANNELS_COUNT = 4
-
-
-@pytest.fixture
-def live_channels(authed_session, live_server, live_post_channel):
+def live_channels(authed_session, live_server):
     response = authed_session.get(f"{live_server}/api/channels")
     assert response.status_code == 200
 
     channels = [from_dict(Channel, c) for c in response.json()]
-    assert len(channels) == LIVE_CHANNELS_COUNT
     return channels
 
 
@@ -145,7 +151,7 @@ def get_channel_json(channels, skip, limit):
         "pagination": {
             "skip": skip,
             "limit": limit,
-            "all_records_count": LIVE_CHANNELS_COUNT,
+            "all_records_count": len(channels),
         },
         "result": [
             {
@@ -159,62 +165,60 @@ def get_channel_json(channels, skip, limit):
                 "members_count": channels[i].members_count,
                 "packages_count": channels[i].packages_count,
             }
-            for i in range(skip, skip + limit)
+            for i in range(skip, min(skip + limit, len(channels)))
         ],
     }
 
 
 @pytest.fixture
-def expected_channels(live_channels):
-    return get_channel_json(live_channels, 0, LIVE_CHANNELS_COUNT)["result"]
+def three_channels(
+    requests_mock, mock_server, live_post_3_channels, authed_session, live_server
+):
+    # We don't use live_channels as a fixture here because
+    # we want to make sure that the channels are created first
+    channels = live_channels(authed_session, live_server)
+    # We only want the channels starting with c-
+    prefixed_channels = [c for c in channels if c.name.startswith("c-")]
+
+    url = f"{mock_server}/api/paginated/channels?skip=0&q=c-"
+    requests_mock.get(url, json=get_channel_json(prefixed_channels, 0, 2))
+
+    url = f"{mock_server}/api/paginated/channels?skip=2&q=c-"
+    requests_mock.get(url, json=get_channel_json(prefixed_channels, 2, 2))
+
+    url = f"{mock_server}/api/paginated/channels?skip=4&q=c-"
+    requests_mock.get(url, json=get_channel_json([], 4, 2))
+
+    return get_channel_json(prefixed_channels, 0, len(prefixed_channels))["result"]
 
 
 @pytest.fixture
-def expected_channels_0(live_channels):
-    return get_channel_json(live_channels, 0, 2)
-
-
-@pytest.fixture(autouse=True)
-def mock_yield_channels_0(requests_mock, mock_server, expected_channels_0):
-    url = f"{mock_server}/api/paginated/channels?skip=0"
-    requests_mock.get(url, json=expected_channels_0)
+def live_post_channel_a(authed_session, live_server):
+    # breakpoint()
+    post_channel(authed_session, live_server, "a", "descr a")
+    yield
+    delete_channel(authed_session, live_server, "a")
 
 
 @pytest.fixture
-def expected_channels_2(live_channels):
-    return get_channel_json(live_channels, 2, 2)
+def live_post_3_channels(authed_session, live_server):
+    # breakpoint()
+    post_channel(authed_session, live_server, "c-1", "descr c1")
+    post_channel(authed_session, live_server, "c-2", "descr c2")
+    post_channel(authed_session, live_server, "c-3", "descr c3")
+    yield
+    delete_channel(authed_session, live_server, "c-1")
+    # breakpoint()
+    delete_channel(authed_session, live_server, "c-2")
+    delete_channel(authed_session, live_server, "c-3")
 
 
-@pytest.fixture(autouse=True)
-def mock_yield_channels_2(requests_mock, mock_server, expected_channels_2):
-    url = f"{mock_server}/api/paginated/channels?skip=2"
-    requests_mock.get(url, json=expected_channels_2)
-
-
-@pytest.fixture(autouse=True)
-def mock_yield_channels_4(requests_mock, mock_server):
-    url = f"{mock_server}/api/paginated/channels?skip=4"
-    requests_mock.get(
-        url,
-        json={
-            "pagination": {
-                "skip": 4,
-                "limit": 2,
-                "all_records_count": LIVE_CHANNELS_COUNT,
-            },
-            "result": [],
-        },
-    )
-
-
-@pytest.fixture(autouse=True, scope="module")
-def live_post_channel(authed_session, live_server):
-    # Add channel a to the live server
+def post_channel(authed_session, live_server, name, description):
     response = authed_session.post(
         f"{live_server}/api/channels",
         json={
-            "name": "a",
-            "description": "descr a",
+            "name": name,
+            "description": description,
             "private": True,
             "size_limit": None,
             "ttl": 36000,
@@ -223,11 +227,18 @@ def live_post_channel(authed_session, live_server):
         },
     )
     assert response.status_code == 201
+    return response
+
+
+def delete_channel(authed_session, live_server, name):
+    response = authed_session.delete(f"{live_server}/api/channels/{name}")
+    assert response.status_code == 200
 
 
 @pytest.fixture(autouse=True, scope="module")
 def live_users(authed_session, live_server):
     # Get the live users alice, bob, carol, and dave
+    # These are created by passing the --dev flag to the live quetz
     response = authed_session.get(f"{live_server}/api/users")
     assert response.status_code == 200
     users = response.json()
@@ -275,7 +286,7 @@ def get_user_with_username(users, username):
 
 
 @pytest.fixture()
-def live_post_channel_members(authed_session, live_server):
+def live_post_channel_a_members(authed_session, live_server, live_post_channel_a):
     # Add alice & bob to channel a
     response = authed_session.post(
         f"{live_server}/api/channels/a/members",
@@ -294,25 +305,11 @@ def live_post_channel_members(authed_session, live_server):
     )
     assert response.status_code == 201
 
-    yield
-
-    # Remove alice & bob from channel a
-    authed_session.delete(
-        f"{live_server}/api/channels/a/members",
-        params={
-            "username": "alice",
-        },
-    )
-    authed_session.delete(
-        f"{live_server}/api/channels/a/members",
-        params={
-            "username": "bob",
-        },
-    )
+    # Channel will be deleted afterwards, so we don't need to remove the members
 
 
 @pytest.fixture(scope="module")
-def expected_channel_members(live_alice, live_bob):
+def expected_channel_a_members(live_alice, live_bob):
     return [
         {
             "role": "owner",
@@ -334,9 +331,11 @@ def expected_channel_members(live_alice, live_bob):
 
 
 @pytest.fixture(autouse=True)
-def mock_yield_channel_members(requests_mock, mock_server, expected_channel_members):
+def mock_yield_channel_a_members(
+    requests_mock, mock_server, expected_channel_a_members
+):
     url = f"{mock_server}/api/channels/a/members"
-    requests_mock.get(url, json=expected_channel_members)
+    requests_mock.get(url, json=expected_channel_a_members)
 
 
 @pytest.fixture

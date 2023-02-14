@@ -1,5 +1,3 @@
-import re
-
 import pytest
 from dacite import from_dict
 
@@ -8,18 +6,20 @@ from quetz_client.client import Channel, ChannelMember, QuetzClient
 from .conftest import temporary_package_file
 
 
-def test_yield_channels(client: QuetzClient, expected_channels):
-    channels = list(client.yield_channels(limit=2))
-    assert len(channels) == 4
+def test_yield_channels(client: QuetzClient, three_channels):
+    channels = list(client.yield_channels(limit=2, query="c-"))
+    assert len(channels) == 3
     assert isinstance(channels[0], Channel)
-    assert {from_dict(Channel, c) for c in expected_channels} == set(channels)
+    assert {from_dict(Channel, c) for c in three_channels} == set(channels)
 
 
-def test_yield_channel_members(client: QuetzClient, expected_channel_members):
+def test_yield_channel_members(
+    client: QuetzClient, expected_channel_a_members, live_post_channel_a_members
+):
     channel = "a"
     channel_members = set(client.yield_channel_members(channel=channel))
     assert {
-        from_dict(ChannelMember, ecm) for ecm in expected_channel_members
+        from_dict(ChannelMember, ecm) for ecm in expected_channel_a_members
     } == channel_members
 
 
@@ -56,8 +56,8 @@ def test_live_get_role(
     live_client: QuetzClient,
     live_alice_role,
 ):
-    actual_role = live_client.get_role("alice")
-    assert actual_role.role == live_alice_role
+    actual_alice_role = live_client.get_role("alice")
+    assert next(actual_alice_role).role == live_alice_role
 
 
 @pytest.mark.parametrize(
@@ -69,7 +69,7 @@ def test_live_get_role(
         "owner",
     ],
 )
-def test_set_channel_member(
+def test_mock_set_channel_member(
     mock_client: QuetzClient,
     role,
     requests_mock,
@@ -87,6 +87,26 @@ def test_set_channel_member(
     assert last_request.method == "POST"
     assert last_request.json()["username"] == username
     assert last_request.json()["role"] == role
+
+
+@pytest.mark.parametrize(
+    "role",
+    [
+        "member",
+        "maintainer",
+        "owner",
+    ],
+)
+def test_live_set_channel_member(
+    live_client: QuetzClient,
+    live_post_channel_a,
+    role,
+):
+    live_client.set_channel_member("alice", role, "a")
+
+    members = live_client.yield_channel_members("a")
+
+    assert any(m.user.username == "alice" and m.role == role for m in members)
 
 
 def test_mock_delete_channel_member(
@@ -111,7 +131,7 @@ def test_mock_delete_channel_member(
 def test_live_delete_channel_member(
     authed_session,
     live_client: QuetzClient,
-    live_post_channel_members,
+    live_post_channel_a_members,
 ):
     # Check that alice is a member of channel a
     channel = "a"
@@ -209,17 +229,15 @@ def test_yield_packages(mock_client: QuetzClient, expected_packages):
     } == package_set
 
 
-def test_post_file_to_channel(
+def test_mock_post_file_to_channel(
     mock_client: QuetzClient,
     requests_mock,
     mock_server: str,
 ):
     channel = "a"
 
-    url_matcher = re.compile(
-        f"{mock_server}/api/channels/{channel}/upload/\\w*\\?force=False&sha256=\\w*"
-    )
-    requests_mock.register_uri("POST", url_matcher, json=None)
+    url = f"{mock_server}/api/channels/{channel}/files/"
+    requests_mock.post(url, json=None)
 
     requests_mock.register_uri(
         "GET",
@@ -232,6 +250,26 @@ def test_post_file_to_channel(
     with temporary_package_file() as file:
         mock_client.post_file_to_channel(channel, file)
 
-    # the last request here is the download of the test package file, thus we need to access the second-to-last request
-    last_request = requests_mock.request_history[1]
-    assert last_request.method == "POST"
+    # the last request here might be the download of the test package file
+    # thus we need to access all the requests
+    assert len(requests_mock.request_history) <= 2
+    assert any(r.method == "POST" for r in requests_mock.request_history)
+
+
+def test_live_post_file_to_channel(
+    live_client: QuetzClient,
+    live_post_channel_a,
+    requests_mock,
+):
+    requests_mock.register_uri(
+        "GET",
+        "https://conda.anaconda.org/conda-forge/linux-64/xtensor-0.16.1-0.tar.bz2",
+        real_http=True,
+    )
+
+    with temporary_package_file() as file:
+        live_client.post_file_to_channel("a", file)
+
+    packages = live_client.yield_packages("a")
+
+    assert any(p.name == "xtensor" for p in packages)
