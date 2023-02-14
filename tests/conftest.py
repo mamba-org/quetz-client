@@ -76,7 +76,7 @@ def start_server():
     """Start the server in a separate thread"""
     path_to_quetz = "/home/runner/micromamba-root/envs/quetz-client/bin/quetz"
     if not os.path.exists(path_to_quetz):
-        path_to_quetz = "/home/simon/mambaforge/envs/quetz-client/bin/quetz"
+        path_to_quetz = str(Path.home() / "mambaforge/envs/quetz-client/bin/quetz")
 
     import subprocess
 
@@ -195,7 +195,6 @@ def three_channels(
 
 @pytest.fixture
 def live_post_channel_a(authed_session, live_server):
-    # breakpoint()
     post_channel(authed_session, live_server, "a", "descr a")
     yield
     delete_channel(authed_session, live_server, "a")
@@ -203,13 +202,11 @@ def live_post_channel_a(authed_session, live_server):
 
 @pytest.fixture
 def live_post_3_channels(authed_session, live_server):
-    # breakpoint()
     post_channel(authed_session, live_server, "c-1", "descr c1")
     post_channel(authed_session, live_server, "c-2", "descr c2")
     post_channel(authed_session, live_server, "c-3", "descr c3")
     yield
     delete_channel(authed_session, live_server, "c-1")
-    # breakpoint()
     delete_channel(authed_session, live_server, "c-2")
     delete_channel(authed_session, live_server, "c-3")
 

@@ -75,7 +75,6 @@ class QuetzClient:
             response = self.session.get(url=url, params=params)
             response.raise_for_status()
             result = response.json()["result"]
-            # breakpoint()
             if not result:
                 break
             yield from result

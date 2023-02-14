@@ -245,8 +245,6 @@ def test_mock_post_file_to_channel(
         real_http=True,
     )
 
-    # breakpoint()
-
     with temporary_package_file() as file:
         mock_client.post_file_to_channel(channel, file)
 

@@ -14,10 +14,9 @@ dependencies:
   - sphinx
   - sphinxcontrib-apidoc
   - sphinx_rtd_theme
-  - sqlalchemy<2.0.0
-  - quetz >=0.4.0
   - pytest-mock
   - requests-mock
   - httpx
+  # Runtime dependencies
   - fire
   - dacite

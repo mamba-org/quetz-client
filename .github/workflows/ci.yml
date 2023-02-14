@@ -26,11 +26,11 @@ jobs:
           extra-specs: |
             pytest-md
             pytest-emoji
+            quetz
 
       - name: Install quetz-client
         run: |
           pip install -e .
-          /bin/bash -c "micromamba list quetz"
 
       - name: Run pytest
         uses: pavelzw/pytest-action@v2
