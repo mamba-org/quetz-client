@@ -278,9 +278,7 @@ def live_dave(live_users):
 
 
 def get_user_with_username(users, username):
-    users = [u for u in users if u.username == username]
-    assert len(users) == 1
-    return users[0]
+    return {u.username: u for u in users}[username]
 
 
 @pytest.fixture()
