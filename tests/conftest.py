@@ -4,13 +4,14 @@ import shutil
 import socket
 import time
 from contextlib import contextmanager
+from dataclasses import asdict
 from pathlib import Path
 from typing import Iterator
 
 import pytest
 import requests
 from dacite import from_dict
-from requests_mock import ANY, Mocker
+from requests_mock import Mocker
 
 from quetz_client.client import Channel, QuetzClient, User
 
@@ -101,7 +102,7 @@ def start_server():
     server_process.wait()
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def mock_client(mock_server):
     return QuetzClient(url=mock_server, session=requests.Session())
 
@@ -117,8 +118,7 @@ def authed_session(live_server, start_server):
 @pytest.fixture(scope="module")
 def live_client(live_server, authed_session):
     # Relay matching requests to the real server
-    with Mocker(session=authed_session) as m:
-        m.register_uri(ANY, re.compile(re.escape(live_server)), real_http=True)
+    with Mocker(session=authed_session, real_http=True):
         yield QuetzClient(url=live_server, session=authed_session)
 
 
@@ -155,7 +155,7 @@ def get_channel_json(channels, skip, limit):
             "all_records_count": len(channels),
         },
         "result": [
-            c.asdict() for c in channels[skip : min(skip + limit, len(channels))]
+            asdict(c) for c in channels[skip : min(skip + limit, len(channels))]
         ],
     }
 

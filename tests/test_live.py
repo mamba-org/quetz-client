@@ -61,6 +61,10 @@ def test_live_post_file_to_channel(
     live_post_channel_a,
     requests_mock,
 ):
+    # For some reason, we still need to explicitly tell requests_mock to
+    # use the real http connection for this url.
+    # I thought this would be avoided by using real_http=True in
+    # live_client in conftest.py, but it's not.
     requests_mock.register_uri(
         "GET",
         "https://conda.anaconda.org/conda-forge/linux-64/xtensor-0.16.1-0.tar.bz2",
