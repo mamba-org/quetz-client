@@ -155,18 +155,7 @@ def get_channel_json(channels, skip, limit):
             "all_records_count": len(channels),
         },
         "result": [
-            {
-                "name": channels[i].name,
-                "description": channels[i].description,
-                "private": channels[i].private,
-                "size_limit": channels[i].size_limit,
-                "ttl": channels[i].ttl,
-                "mirror_channel_url": channels[i].mirror_channel_url,
-                "mirror_mode": channels[i].mirror_mode,
-                "members_count": channels[i].members_count,
-                "packages_count": channels[i].packages_count,
-            }
-            for i in range(skip, min(skip + limit, len(channels)))
+            c.asdict() for c in channels[skip : min(skip + limit, len(channels))]
         ],
     }
 
