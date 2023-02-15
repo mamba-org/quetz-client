@@ -22,7 +22,7 @@ jobs:
       - name: Install mamba & create environment
         uses: mamba-org/provision-with-micromamba@v15
         with:
-          cache-env: true
+          cache-env: false
           extra-specs: |
             pytest-md
             pytest-emoji
