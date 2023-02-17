@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 0.1.1
+
+([Full Changelog](https://github.com/mamba-org/quetz-client/compare/v0.1.0...37186a40d91e882aabd2e60ad1ae981043bb5378))
+
+### Maintenance and upkeep improvements
+
+- Add license [#11](https://github.com/mamba-org/quetz-client/pull/11) ([@janjagusch](https://github.com/janjagusch))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/mamba-org/quetz-client/graphs/contributors?from=2023-02-17&to=2023-02-17&type=c))
+
+[@janjagusch](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Ajanjagusch+updated%3A2023-02-17..2023-02-17&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.1.0
 
 ([Full Changelog](https://github.com/mamba-org/quetz-client/compare/10bc0eacd33abde944568aca82b6681b40041a78...496c6b4bcdf7af06107ca894ffee576236bf8cb3))
@@ -21,5 +37,3 @@
 ([GitHub contributors page for this release](https://github.com/mamba-org/quetz-client/graphs/contributors?from=2023-02-02&to=2023-02-17&type=c))
 
 [@janjagusch](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Ajanjagusch+updated%3A2023-02-02..2023-02-17&type=Issues) | [@simonbohnen](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Asimonbohnen+updated%3A2023-02-02..2023-02-17&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
