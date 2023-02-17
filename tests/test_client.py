@@ -11,7 +11,7 @@ from .conftest import temporary_package_file
 
 def test_readme_script():
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    result = subprocess.call(["bash", f"{dir_path}/test_readme.sh"])
+    result = subprocess.call(["bash", f"{dir_path}/test-readme.sh"])
     assert result == 0
 
 
