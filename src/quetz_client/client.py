@@ -166,8 +166,7 @@ class QuetzClient:
     def post_file_to_channel(self, channel: str, file: Path, force: bool = False):
         file_path = Path(file)
         url = f"{self.url}/api/channels/{channel}/upload/{file_path.name}"
-        body = open(file_path, "rb")
-        body_bytes = body.read()
+        body_bytes = file_path.read_bytes()
 
         upload_hash = hashlib.sha256(body_bytes).hexdigest()
 
@@ -175,14 +174,10 @@ class QuetzClient:
             "force": force,
             "sha256": upload_hash,
         }
-        try:
-            response = self.session.post(
-                url=url,
-                data=body_bytes,
-                params=params,
-            )
-            response.raise_for_status()
-        except requests.HTTPError as e:
-            print(f"Could not upload {file_path.name}: {e}")
 
-        body.close()
+        response = self.session.post(
+            url=url,
+            data=body_bytes,
+            params=params,
+        )
+        response.raise_for_status()

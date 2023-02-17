@@ -14,10 +14,10 @@ from quetz_client.client import QuetzClient
 @contextmanager
 def temporary_package_file() -> Iterator[Path]:
     url = "https://conda.anaconda.org/conda-forge/linux-64/xtensor-0.16.1-0.tar.bz2"
-    xtensor_raw_download = requests.get(url, stream=True).raw
+    xtensor_download = requests.get(url, stream=True)
     with NamedTemporaryFile() as file:
         with open(file.name, "wb") as fp:
-            shutil.copyfileobj(xtensor_raw_download, fp)
+            shutil.copyfileobj(xtensor_download.raw, fp)
         yield Path(file.name)
 
 
