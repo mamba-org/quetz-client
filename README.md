@@ -1,6 +1,6 @@
 # quetz-client
 
-A Python client to interact with a Quetz server.
+**Archived:** The new `quetz-client` repository can be found here: https://github.com/conda-forge/quetz-client-feedstock/pull/6#event-8550176213.
 
 ## Installation
 
