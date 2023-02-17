@@ -1,6 +1,6 @@
 # quetz-client
 
-**Archived:** The new `quetz-client` repository can be found here: https://github.com/conda-forge/quetz-client-feedstock/pull/6#event-8550176213.
+**Archived:** The new `quetz-client` repository can be found [here](https://github.com/mamba-org/quetz-client).
 
 ## Installation
 
