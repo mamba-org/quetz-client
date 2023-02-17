@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 0.1.2
+
+([Full Changelog](https://github.com/mamba-org/quetz-client/compare/v0.1.1...b844539c779a3014c55c8d942d5c5f8b91ba0bc6))
+
+### Maintenance and upkeep improvements
+
+- Add install requires [#12](https://github.com/mamba-org/quetz-client/pull/12) ([@janjagusch](https://github.com/janjagusch))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/mamba-org/quetz-client/graphs/contributors?from=2023-02-17&to=2023-02-17&type=c))
+
+[@janjagusch](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Ajanjagusch+updated%3A2023-02-17..2023-02-17&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.1.1
 
 ([Full Changelog](https://github.com/mamba-org/quetz-client/compare/v0.1.0...37186a40d91e882aabd2e60ad1ae981043bb5378))
@@ -15,8 +31,6 @@
 ([GitHub contributors page for this release](https://github.com/mamba-org/quetz-client/graphs/contributors?from=2023-02-17&to=2023-02-17&type=c))
 
 [@janjagusch](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Ajanjagusch+updated%3A2023-02-17..2023-02-17&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.1.0
 
