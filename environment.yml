@@ -20,3 +20,5 @@ dependencies:
   - httpx
   - fire
   - tbump
+  - pip:
+      - git+https://github.com/jupyter-server/jupyter_releaser.git@v2
