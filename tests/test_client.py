@@ -195,7 +195,7 @@ def test_post_file_to_channel(
     )
 
     with temporary_package_file() as file:
-        quetz_client.post_files_to_channel(channel, file)
+        quetz_client.post_file_to_channel(channel, file)
 
     # the last request here is the download of the test package file, thus we need to access the second-to-last request
     last_request = requests_mock.request_history[1]
