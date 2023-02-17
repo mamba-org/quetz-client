@@ -33,3 +33,26 @@ check_untyped_defs = true
 [tool.pytest.ini_options]
 # This will be pytest's future default.
 addopts = "--import-mode=importlib"
+
+[tool.tbump.version]
+current = "0.0.5"
+regex = '''
+  (?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)
+  ((?P<channel>a|b|rc|.dev)(?P<release>\d+))?
+'''
+
+[[tool.tbump.field]]
+name = "channel"
+default = ""
+
+[[tool.tbump.field]]
+name = "release"
+default = ""
+
+[tool.tbump.git]
+message_template = "Bump to {new_version}"
+tag_template = "v{new_version}"
+
+[[tool.tbump.file]]
+src = "src/quetz_client/_version.py"
+version_template = '({major}, {minor}, {patch}, "{channel}", "{release}")'
