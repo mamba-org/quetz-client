@@ -163,32 +163,26 @@ class QuetzClient:
         for user_json in self._yield_paginated(url=url, params=params, limit=limit):
             yield Package(**user_json)
 
-    def post_files_to_channel(self, channel: str, *files: str):
-        had_error = False
-        for file in files:
-            file_path = Path(file)
-            url = f"{self.url}/api/channels/{channel}/upload/{file_path.name}"
-            body = open(file_path, "rb")
-            body_bytes = body.read()
+    def post_file_to_channel(self, channel: str, file: Path, force: bool = False):
+        file_path = Path(file)
+        url = f"{self.url}/api/channels/{channel}/upload/{file_path.name}"
+        body = open(file_path, "rb")
+        body_bytes = body.read()
 
-            upload_hash = hashlib.sha256(body_bytes).hexdigest()
+        upload_hash = hashlib.sha256(body_bytes).hexdigest()
 
-            params: Dict[str, Union[str, int]] = {
-                "force": False,
-                "sha256": upload_hash,
-            }
-            try:
-                response = self.session.post(
-                    url=url,
-                    data=body_bytes,
-                    params=params,
-                )
-                response.raise_for_status()
-            except requests.HTTPError as e:
-                print(f"Could not upload {file_path.name}: {e}")
-                had_error = True
+        params: Dict[str, Union[str, int]] = {
+            "force": force,
+            "sha256": upload_hash,
+        }
+        try:
+            response = self.session.post(
+                url=url,
+                data=body_bytes,
+                params=params,
+            )
+            response.raise_for_status()
+        except requests.HTTPError as e:
+            print(f"Could not upload {file_path.name}: {e}")
 
-            body.close()
-
-        if had_error:
-            raise RuntimeError("Could not upload all files")
+        body.close()
