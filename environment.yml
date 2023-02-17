@@ -10,7 +10,6 @@ dependencies:
   - pre-commit
   - pytest>=6 # Adds --import-mode option
   - pytest-cov
-  - setuptools_scm
   - sphinx
   - sphinxcontrib-apidoc
   - sphinx_rtd_theme
