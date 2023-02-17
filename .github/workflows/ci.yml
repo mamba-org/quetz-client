@@ -29,7 +29,7 @@ jobs:
 
       - name: Install quetz
         run: |
-          micromamba install -c conda-forge quetz
+          micromamba install -c conda-forge 'quetz>=0.6'
 
       - name: Install quetz-client
         run: |
