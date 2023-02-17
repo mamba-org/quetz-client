@@ -1,8 +1,6 @@
 [build-system]
 requires = ['setuptools', 'setuptools-scm', 'wheel']
-
-[tool.setuptools_scm]
-version_scheme = "post-release"
+build-backend = "setuptools.build_meta"
 
 [tool.black]
 exclude = '''
