@@ -1,7 +1,9 @@
 name: Run quetz README
 
 on:
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 
 defaults:
   run:
