@@ -10,11 +10,14 @@ dependencies:
   - pre-commit
   - pytest>=6 # Adds --import-mode option
   - pytest-cov
-  - setuptools_scm
   - sphinx
   - sphinxcontrib-apidoc
   - sphinx_rtd_theme
+  - quetz >=0.6.1
   - pytest-mock
   - requests-mock
   - httpx
   - fire
+  - tbump
+  - pip:
+      - git+https://github.com/jupyter-server/jupyter_releaser.git@v2
