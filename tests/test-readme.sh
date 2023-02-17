@@ -1,10 +1,9 @@
 set -e
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # Run the steps described in the quetz README.md for uploading and installing a sample package
 
-pip install -e ./quetz-client
-
-quetz run test_quetz --copy-conf ./quetz-client/tests/dev_config.toml --dev --reload > quetz.log &
+quetz run test_quetz --copy-conf $SCRIPT_DIR/dev_config.toml --dev --reload > quetz.log &
 sleep 10
 export QUETZ_API_KEY=$(sed -n 's/.*key created for user.*: \(.*\)/\1/p' quetz.log)
 export QUETZ_SERVER_URL=http://localhost:8000

@@ -1,6 +1,6 @@
 # quetz-client
 
-A Python client to interact with a Quetz server. Compatible with `quetz>=0.4.0`.
+A Python client to interact with a Quetz server. Compatible with `quetz>=0.6.1`.
 
 ## Installation
 
