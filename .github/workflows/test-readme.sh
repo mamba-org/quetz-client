@@ -4,7 +4,7 @@ set -e
 
 pip install -e ./quetz-client
 
-quetz run test_quetz --copy-conf ./quetz/dev_config.toml --dev --reload > quetz.log &
+quetz run test_quetz --copy-conf ./quetz-client/tests/dev_config.toml --dev --reload > quetz.log &
 sleep 10
 export QUETZ_API_KEY=$(sed -n 's/.*key created for user.*: \(.*\)/\1/p' quetz.log)
 export QUETZ_SERVER_URL=http://localhost:8000
