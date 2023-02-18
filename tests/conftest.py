@@ -33,10 +33,10 @@ def temporary_package_file() -> Iterator[Path]:
         return
 
     url = "https://conda.anaconda.org/conda-forge/linux-64/xtensor-0.16.1-0.tar.bz2"
-    with requests.get(url, stream=True) as response:
-        with open(path, "wb") as file:
-            shutil.copyfileobj(response.raw, file)
-        yield path
+    xtensor_download = requests.get(url, stream=True)
+    with open(path, "wb") as file:
+        shutil.copyfileobj(xtensor_download.raw, file)
+    yield path
 
 
 @pytest.fixture(scope="module")
