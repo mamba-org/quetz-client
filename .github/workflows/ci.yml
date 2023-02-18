@@ -56,3 +56,22 @@ jobs:
           python-version: 3.11
       - name: Run pre-commit checks
         uses: pre-commit/action@v3.0.0
+
+  check-release:
+    name: Check release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3.3.0
+      - name: Install Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Install missing dependency
+        run: pip install ipython_genutils
+      - name: Check Release
+        uses: jupyter-server/jupyter_releaser/.github/actions/check-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -120,3 +120,5 @@ mlruns
 
 # direnv
 .envrc
+
+.jupyter_releaser_checkout/
