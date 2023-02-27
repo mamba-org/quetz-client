@@ -164,18 +164,20 @@ class QuetzClient:
             yield Package(**user_json)
 
     def post_file_to_channel(self, channel: str, file: Path, force: bool = False):
-        url = f"{self.url}/api/channels/{channel}/upload/{file.name}"
-        body = open(file, "rb")
+        file_path = Path(file)
+        url = f"{self.url}/api/channels/{channel}/upload/{file_path.name}"
+        body_bytes = file_path.read_bytes()
 
-        upload_hash = hashlib.sha256(body.read()).hexdigest()
+        upload_hash = hashlib.sha256(body_bytes).hexdigest()
 
         params: Dict[str, Union[str, int]] = {
             "force": force,
             "sha256": upload_hash,
         }
+
         response = self.session.post(
             url=url,
-            data=body,
+            data=body_bytes,
             params=params,
         )
         response.raise_for_status()

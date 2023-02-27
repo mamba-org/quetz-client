@@ -1,10 +1,18 @@
+import os
 import re
+import subprocess
 
 import pytest
 
 from quetz_client.client import Channel, ChannelMember, QuetzClient
 
 from .conftest import temporary_package_file
+
+
+def test_readme_script():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    result = subprocess.call(["bash", f"{dir_path}/test-readme.sh"])
+    assert result == 0
 
 
 def test_yield_channels(quetz_client):
