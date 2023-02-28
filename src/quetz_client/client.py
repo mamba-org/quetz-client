@@ -1,7 +1,8 @@
+import hashlib
 from dataclasses import dataclass
 from itertools import count
 from pathlib import Path
-from typing import BinaryIO, Dict, Iterator, List, Optional, Tuple, Union
+from typing import Dict, Iterator, List, Optional, Union
 
 import requests
 from dacite import from_dict
@@ -170,13 +171,20 @@ class QuetzClient:
             yield Package(**user_json)
 
     def post_file_to_channel(self, channel: str, file: Path, force: bool = False):
-        url = f"{self.url}/api/channels/{channel}/files/"
-        files: List[Tuple[str, Union[BinaryIO, Tuple]]] = [("files", open(file, "rb"))]
-        if force:
-            files.append(("force", (None, "true")))
+        file_path = Path(file)
+        url = f"{self.url}/api/channels/{channel}/upload/{file_path.name}"
+        body_bytes = file_path.read_bytes()
+
+        upload_hash = hashlib.sha256(body_bytes).hexdigest()
+
+        params: Dict[str, Union[str, int]] = {
+            "force": force,
+            "sha256": upload_hash,
+        }
 
         response = self.session.post(
             url=url,
-            files=files,  # type: ignore
+            data=body_bytes,
+            params=params,
         )
         response.raise_for_status()
