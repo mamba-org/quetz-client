@@ -154,7 +154,7 @@ def test_mock_post_file_to_channel(
 ):
     channel = "a"
 
-    url = f"{mock_server}/api/channels/{channel}/files/"
+    url = f"{mock_server}/api/channels/{channel}/upload/xtensor-0.16.1-0.tar.bz2"
     requests_mock.post(url, json=None)
 
     requests_mock.register_uri(
