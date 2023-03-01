@@ -13,13 +13,14 @@ dependencies:
   - sphinx
   - sphinxcontrib-apidoc
   - sphinx_rtd_theme
+  - tbump
   - quetz >=0.6.1
   - pytest-mock
   - requests-mock
   - httpx
   # Runtime dependencies
   - fire
+  - requests
   - dacite
-  - tbump
   - pip:
       - git+https://github.com/jupyter-server/jupyter_releaser.git@v2
