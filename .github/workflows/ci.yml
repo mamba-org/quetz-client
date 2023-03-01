@@ -27,6 +27,10 @@ jobs:
             pytest-md
             pytest-emoji
 
+      - name: Install quetz
+        run: |
+          micromamba install -c conda-forge 'quetz>=0.6.1'
+
       - name: Install quetz-client
         run: |
           pip install -e .
