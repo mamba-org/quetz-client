@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 0.2.1
+
+([Full Changelog](https://github.com/mamba-org/quetz-client/compare/v0.2.0...0b113b47da3c1d319dc2724d16f861f49690cbe1))
+
+### Maintenance and upkeep improvements
+
+- Add tests against live `quetz` [#2](https://github.com/mamba-org/quetz-client/pull/2) ([@simonbohnen](https://github.com/simonbohnen))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/mamba-org/quetz-client/graphs/contributors?from=2023-02-28&to=2023-03-07&type=c))
+
+[@simonbohnen](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Asimonbohnen+updated%3A2023-02-28..2023-03-07&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.2.0
 
 ([Full Changelog](https://github.com/mamba-org/quetz-client/compare/v0.1.2...310e0f6d1df636e97ba43099f297f5a4102bfe86))
@@ -15,8 +31,6 @@
 ([GitHub contributors page for this release](https://github.com/mamba-org/quetz-client/graphs/contributors?from=2023-02-17&to=2023-02-28&type=c))
 
 [@simonbohnen](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Asimonbohnen+updated%3A2023-02-17..2023-02-28&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.1.2
 
