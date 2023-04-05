@@ -6,6 +6,7 @@ from typing import Dict, Iterator, List, Optional, Union
 
 import requests
 from dacite import from_dict
+from requests.adapters import HTTPAdapter, Retry
 
 
 @dataclass(frozen=True)
@@ -65,6 +66,14 @@ class QuetzClient:
     def from_token(cls, url: str, token: str) -> "QuetzClient":
         session = requests.Session()
         session.headers.update({"X-API-Key": token})
+
+        # Configure retries for all requests
+        retry_config = Retry(
+            total=10, status_forcelist=range(500, 600), backoff_factor=1
+        )
+        adapter = HTTPAdapter(max_retries=retry_config)
+        session.mount(url, adapter)
+
         return cls(session, url=url)
 
     def _yield_paginated(
