@@ -25,8 +25,8 @@ def get_client(
     insecure: bool
         Allow quetz-client to perform "insecure" SSL connections.
     """
-    url = url or os.environ.get("QUETZ_SERVER_URL")
-    token = token or os.environ.get("QUETZ_API_KEY")
+    url = url or os.environ["QUETZ_SERVER_URL"]
+    token = token or os.environ["QUETZ_API_KEY"]
     client = QuetzClient.from_token(url, token)
     client.session.verify = not insecure
     return client
