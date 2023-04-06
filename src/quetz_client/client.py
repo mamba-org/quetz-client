@@ -62,9 +62,10 @@ class QuetzClient:
     url: str
 
     @classmethod
-    def from_token(cls, url: str, token: str) -> "QuetzClient":
+    def from_token(cls, url: str, token: str, *, insecure: bool = False) -> "QuetzClient":
         session = requests.Session()
         session.headers.update({"X-API-Key": token})
+        session.verify = not insecure
         return cls(session, url=url)
 
     def _yield_paginated(
@@ -170,9 +171,7 @@ class QuetzClient:
         for user_json in self._yield_paginated(url=url, params=params, limit=limit):
             yield Package(**user_json)
 
-    def post_file_to_channel(
-        self, channel: str, file: Path, force: bool = False, insecure: bool = False
-    ):
+    def post_file_to_channel(self, channel: str, file: Path, force: bool = False):
         file_path = Path(file)
         url = f"{self.url}/api/channels/{channel}/upload/{file_path.name}"
         body_bytes = file_path.read_bytes()
@@ -188,6 +187,5 @@ class QuetzClient:
             url=url,
             data=body_bytes,
             params=params,
-            verify=not insecure,
         )
         response.raise_for_status()
