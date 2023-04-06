@@ -2,12 +2,17 @@ import os
 from typing import Optional
 
 import fire
+from requests.adapters import HTTPAdapter, Retry
 
 from quetz_client.client import QuetzClient
 
 
 def get_client(
-    *, url: Optional[str] = None, token: Optional[str] = None, insecure: bool = False
+    *,
+    url: Optional[str] = None,
+    token: Optional[str] = None,
+    insecure: bool = False,
+    retry: bool = False,
 ) -> QuetzClient:
     """
     CLI tool to interact with a Quetz server.
@@ -24,11 +29,26 @@ def get_client(
 
     insecure: bool
         Allow quetz-client to perform "insecure" SSL connections.
+
+    retry: bool
+        Allow to retry requests on transient errors and 5xx server
+        respones.
     """
+    # Initialize the client
     url = url or os.environ["QUETZ_SERVER_URL"]
     token = token or os.environ["QUETZ_API_KEY"]
     client = QuetzClient.from_token(url, token)
+
+    # Configure the client with additional flags passed to the CLI
     client.session.verify = not insecure
+    if retry:
+        # Retry a total of 10 times, starting with an initial backoff of one second.
+        retry_config = Retry(
+            total=10, status_forcelist=range(500, 600), backoff_factor=1
+        )
+        adapter = HTTPAdapter(max_retries=retry_config)
+        client.session.mount(url, adapter)
+
     return client
 
 
