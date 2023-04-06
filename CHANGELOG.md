@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 0.3.0
+
+([Full Changelog](https://github.com/mamba-org/quetz-client/compare/v0.2.1...44dfcc9cdf17726aefb8c5df6c2d10f2731b29de))
+
+### Enhancements made
+
+- Allow to disable SSL certificate verification in CLI [#21](https://github.com/mamba-org/quetz-client/pull/21) ([@borchero](https://github.com/borchero))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/mamba-org/quetz-client/graphs/contributors?from=2023-03-07&to=2023-04-06&type=c))
+
+[@borchero](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Aborchero+updated%3A2023-03-07..2023-04-06&type=Issues) | [@janjagusch](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Ajanjagusch+updated%3A2023-03-07..2023-04-06&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.2.1
 
 ([Full Changelog](https://github.com/mamba-org/quetz-client/compare/v0.2.0...0b113b47da3c1d319dc2724d16f861f49690cbe1))
@@ -15,8 +31,6 @@
 ([GitHub contributors page for this release](https://github.com/mamba-org/quetz-client/graphs/contributors?from=2023-02-28&to=2023-03-07&type=c))
 
 [@simonbohnen](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Asimonbohnen+updated%3A2023-02-28..2023-03-07&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.2.0
 
