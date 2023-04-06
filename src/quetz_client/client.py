@@ -62,10 +62,9 @@ class QuetzClient:
     url: str
 
     @classmethod
-    def from_token(cls, url: str, token: str, *, insecure: bool = False) -> "QuetzClient":
+    def from_token(cls, url: str, token: str) -> "QuetzClient":
         session = requests.Session()
         session.headers.update({"X-API-Key": token})
-        session.verify = not insecure
         return cls(session, url=url)
 
     def _yield_paginated(
