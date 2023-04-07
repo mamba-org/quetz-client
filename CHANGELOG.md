@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 0.4.0
+
+([Full Changelog](https://github.com/mamba-org/quetz-client/compare/v0.3.0...bc99296b0869f015145a3e80874c719852d23cf3))
+
+### Enhancements made
+
+- Add flag for HTTP retries to CLI tool [#23](https://github.com/mamba-org/quetz-client/pull/23) ([@borchero](https://github.com/borchero))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/mamba-org/quetz-client/graphs/contributors?from=2023-04-06&to=2023-04-07&type=c))
+
+[@borchero](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Aborchero+updated%3A2023-04-06..2023-04-07&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.3.0
 
 ([Full Changelog](https://github.com/mamba-org/quetz-client/compare/v0.2.1...44dfcc9cdf17726aefb8c5df6c2d10f2731b29de))
@@ -15,8 +31,6 @@
 ([GitHub contributors page for this release](https://github.com/mamba-org/quetz-client/graphs/contributors?from=2023-03-07&to=2023-04-06&type=c))
 
 [@borchero](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Aborchero+updated%3A2023-03-07..2023-04-06&type=Issues) | [@janjagusch](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Ajanjagusch+updated%3A2023-03-07..2023-04-06&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.2.1
 
