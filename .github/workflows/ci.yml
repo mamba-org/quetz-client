@@ -13,10 +13,20 @@ defaults:
     shell: bash -l {0}
 
 jobs:
+  list_quetz_server_versions:
+    name: List Quetz server versions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.3.0
+      - id: list_versions
+        run: |
+          echo "versions=$(jq --raw-input --slurp 'split("\n")' -c .quetz-server-versions)" >> $GITHUB_OUTPUT
+        outputs:
+          versions: ${{ steps.list_versions.versions }}
   pytest:
     strategy:
       matrix:
-        quetz_server_version: ["0.6.1", "0.6.2", "0.6.3"]
+        quetz_server_version: "${{fromJSON(needs.list_quetz_server_versions.outputs.versions)}}"
     name: Run pytest
     runs-on: ubuntu-latest
     steps:
