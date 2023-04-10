@@ -22,6 +22,10 @@ jobs:
         run: |
           set -eux
           QUETZ_VERSION=$(curl https://api.github.com/repos/mamba-org/quetz/releases/latest -s | jq .tag_name -r)
+
+          # The tag name is prefixed with 'v'.
+          QUETZ_VERSION="${QUETZ_VERSION:1}"
+
           if grep -Fxq "$QUETZ_VERSION" .quetz-server-versions 
           then
             echo "No new version found."
