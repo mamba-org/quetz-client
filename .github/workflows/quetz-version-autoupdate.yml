@@ -1,0 +1,39 @@
+name: Quetz version autoupdate
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
+
+defaults:
+  run:
+    shell: bash -el {0}
+
+jobs:
+  check_update:
+    name: Check if newer version exists
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3.5.0
+        # We need to checkout with SSH here to have actions run on the PR.
+        with:
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Update Quetz version
+        run: |
+          set -eux
+          QUETZ_VERSION=$(curl https://api.github.com/repos/mamba-org/quetz/releases/latest -s | jq .tag_name -r)
+          if grep -Fxq "$QUETZ_VERSION" .quetz-server-versions 
+          then
+            echo "No new version found."
+          else
+            echo "New version '$QUETZ_VERSION' found."
+            echo "\n$QUETZ_VERSION" >> .quetz-server-versions 
+          fi
+      - uses: peter-evans/create-pull-request@38e0b6e68b4c852a5500a94740f0e535e0d7ba54
+        with:
+          commit-message: "Auto-update Quetz version."
+          title: "Auto-update Quetz version"
+          body: |
+            A new version of Quetz was detected.
+          branch: quetz-server-autoupdate
+          delete-branch: true
