@@ -24,9 +24,6 @@ jobs:
         outputs:
           versions: ${{ steps.list_versions.versions }}
   pytest:
-    strategy:
-      matrix:
-        quetz_server_version: "${{fromJSON(needs.list_quetz_server_versions.outputs.versions)}}"
     name: Run pytest
     runs-on: ubuntu-latest
     steps:
