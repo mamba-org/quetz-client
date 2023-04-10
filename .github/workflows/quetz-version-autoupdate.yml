@@ -31,7 +31,7 @@ jobs:
             echo "No new version found."
           else
             echo "New version '$QUETZ_VERSION' found."
-            echo "\n$QUETZ_VERSION" >> .quetz-server-versions 
+            echo -e "\n$QUETZ_VERSION" >> .quetz-server-versions 
           fi
       - uses: peter-evans/create-pull-request@38e0b6e68b4c852a5500a94740f0e535e0d7ba54
         with:
