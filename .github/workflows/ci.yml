@@ -22,7 +22,7 @@ jobs:
         run: |
           set -eux
           echo "quetz_versions=$(jq --raw-input --slurp 'split("\n")' -c .quetz-server-versions)" >> $GITHUB_OUTPUT
-          echo $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
     outputs:
       quetz_versions: ${{ steps.list_versions.quetz_versions }}
   pytest:
