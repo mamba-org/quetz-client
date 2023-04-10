@@ -20,6 +20,7 @@ jobs:
       - uses: actions/checkout@v3.3.0
       - id: list_versions
         run: |
+          set -eux
           echo "quetz_versions=$(jq --raw-input --slurp 'split("\n")' -c .quetz-server-versions)" >> $GITHUB_OUTPUT
     outputs:
       quetz_versions: ${{ steps.list_versions.quetz_versions }}
