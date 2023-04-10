@@ -21,8 +21,8 @@ jobs:
       - id: list_versions
         run: |
           echo "versions=$(jq --raw-input --slurp 'split("\n")' -c .quetz-server-versions)" >> $GITHUB_OUTPUT
-        outputs:
-          versions: ${{ steps.list_versions.versions }}
+    outputs:
+      versions: ${{ steps.list_versions.versions }}
   pytest:
     name: Run pytest
     runs-on: ubuntu-latest
