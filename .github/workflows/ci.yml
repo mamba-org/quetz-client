@@ -14,6 +14,9 @@ defaults:
 
 jobs:
   pytest:
+    strategy:
+      matrix:
+        quetz_server_version: ["0.6.1", "0.6.2", "0.6.3"]
     name: Run pytest
     runs-on: ubuntu-latest
     steps:
@@ -26,6 +29,7 @@ jobs:
           extra-specs: |
             pytest-md
             pytest-emoji
+            quetz==${{ matrix.quetz_server_version }}
 
       - name: Install quetz
         run: |
