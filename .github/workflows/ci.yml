@@ -24,7 +24,7 @@ jobs:
           echo "quetz_versions=$(jq --raw-input --slurp 'split("\n")' -c .quetz-server-versions)" >> $GITHUB_OUTPUT
           cat $GITHUB_OUTPUT
     outputs:
-      quetz_versions: '["0.6.1","0.6.2","0.6.3"]'
+      quetz_versions: ${{ steps.list_versions.outputs.quetz_versions }}
   pytest:
     strategy:
       matrix:
