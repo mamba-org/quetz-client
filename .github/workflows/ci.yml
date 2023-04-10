@@ -21,14 +21,13 @@ jobs:
       - id: list_versions
         run: |
           set -eux
-          echo "quetz_versions=$(jq --raw-input --slurp 'split("\n")' -c .quetz-server-versions)" >> $GITHUB_OUTPUT
-          cat $GITHUB_OUTPUT
+          echo "versions=$(jq --raw-input --slurp 'split("\n")' -c .quetz-server-versions)" >> $GITHUB_OUTPUT
     outputs:
-      quetz_versions: ${{ steps.list_versions.outputs.quetz_versions }}
+      versions: ${{ steps.list_versions.outputs.versions }}
   pytest:
     strategy:
       matrix:
-        quetz_server_version: "${{fromJSON(needs.list_quetz_server_versions.outputs.quetz_versions)}}"
+        quetz_server_version: "${{fromJSON(needs.list_quetz_server_versions.outputs.versions)}}"
     name: Run pytest
     runs-on: ubuntu-latest
     needs:
