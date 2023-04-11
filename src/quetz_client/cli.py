@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, cast
 
 import fire
 from requests.adapters import HTTPAdapter, Retry
@@ -34,9 +34,10 @@ def get_client(
         Allow to retry requests on transient errors and 5xx server
         respones.
     """
-    # Initialize the client
-    url = url or os.environ["QUETZ_SERVER_URL"]
-    token = token or os.environ["QUETZ_API_KEY"]
+    # Initialize the client (do not force the env variables to be set of help on the
+    # subcommands does not work without setting them)
+    url = cast(str, url or os.getenv("QUETZ_SERVER_URL", ""))
+    token = cast(str, token or os.getenv("QUETZ_API_KEY", ""))
     client = QuetzClient.from_token(url, token)
 
     # Configure the client with additional flags passed to the CLI
@@ -44,7 +45,10 @@ def get_client(
     if retry:
         # Retry a total of 10 times, starting with an initial backoff of one second.
         retry_config = Retry(
-            total=10, status_forcelist=range(500, 600), backoff_factor=1
+            total=10,
+            status_forcelist=range(500, 600),
+            backoff_factor=1,
+            allowed_methods=["GET", "POST", "PUT", "DELETE"],
         )
         adapter = HTTPAdapter(max_retries=retry_config)
         client.session.mount(url, adapter)
