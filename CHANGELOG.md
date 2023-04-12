@@ -2,6 +2,32 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 0.5.0
+
+([Full Changelog](https://github.com/mamba-org/quetz-client/compare/v0.4.0...c24cc2576ee637c4af9976205f5754213ea02ff3))
+
+### Enhancements made
+
+- Retry requests other than `GET` on CLI retry [#28](https://github.com/mamba-org/quetz-client/pull/28) ([@borchero](https://github.com/borchero))
+
+### Maintenance and upkeep improvements
+
+- Run CI on push [#31](https://github.com/mamba-org/quetz-client/pull/31) ([@janjagusch](https://github.com/janjagusch))
+- Add auto-update workflow [#25](https://github.com/mamba-org/quetz-client/pull/25) ([@janjagusch](https://github.com/janjagusch))
+- Test against multiple quetz server versions [#24](https://github.com/mamba-org/quetz-client/pull/24) ([@janjagusch](https://github.com/janjagusch))
+
+### Other merged PRs
+
+- Fix autoupdate [#27](https://github.com/mamba-org/quetz-client/pull/27) ([@janjagusch](https://github.com/janjagusch))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/mamba-org/quetz-client/graphs/contributors?from=2023-04-07&to=2023-04-12&type=c))
+
+[@borchero](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Aborchero+updated%3A2023-04-07..2023-04-12&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Agithub-actions+updated%3A2023-04-07..2023-04-12&type=Issues) | [@janjagusch](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Ajanjagusch+updated%3A2023-04-07..2023-04-12&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.4.0
 
 ([Full Changelog](https://github.com/mamba-org/quetz-client/compare/v0.3.0...bc99296b0869f015145a3e80874c719852d23cf3))
@@ -15,8 +41,6 @@
 ([GitHub contributors page for this release](https://github.com/mamba-org/quetz-client/graphs/contributors?from=2023-04-06&to=2023-04-07&type=c))
 
 [@borchero](https://github.com/search?q=repo%3Amamba-org%2Fquetz-client+involves%3Aborchero+updated%3A2023-04-06..2023-04-07&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.3.0
 
