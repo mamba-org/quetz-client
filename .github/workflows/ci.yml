@@ -30,10 +30,10 @@ jobs:
       - uses: actions/checkout@v3.3.0
 
       - name: Install mamba & create environment
-        uses: mamba-org/provision-with-micromamba@v15
+        uses: mamba-org/setup-micromamba@v1
         with:
-          cache-env: true
-          extra-specs: |
+          cache-environment: true
+          create-args: >-
             pytest-md
             pytest-emoji
             quetz==${{ matrix.quetz_server_version }}
