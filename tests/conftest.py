@@ -75,7 +75,7 @@ def wait_for_port(port: int, host: str = "localhost", timeout: float = 5.0):
 @pytest.fixture(scope="module")
 def start_server():
     """Start the server in a separate thread"""
-    path_to_quetz = "/home/runner/micromamba-root/envs/quetz-client/bin/quetz"
+    path_to_quetz = f"{os.environ['MAMBA_ROOT_PREFIX']}/envs/quetz-client/bin/quetz"
     if not os.path.exists(path_to_quetz):
         path_to_quetz = str(Path.home() / "mambaforge/envs/quetz-client/bin/quetz")
 
