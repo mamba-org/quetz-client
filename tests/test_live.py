@@ -56,6 +56,24 @@ def test_live_get_role(
     assert next(actual_alice_role).role == live_alice_role
 
 
+@pytest.mark.parametrize(
+    "role",
+    [
+        None,
+        "member",
+        "maintainer",
+        "owner",
+    ],
+)
+def test_live_set_role(
+    live_client: QuetzClient,
+    role,
+):
+    live_client.set_role("alice", role)
+    actual_alice_role = live_client.get_role("alice")
+    assert next(actual_alice_role).role == role
+
+
 def test_live_post_file_to_channel(
     live_client: QuetzClient,
     live_post_channel_a,
