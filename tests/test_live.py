@@ -69,8 +69,8 @@ def test_live_set_role(
     live_client: QuetzClient,
     role,
 ):
-    live_client.set_role("alice", role)
-    actual_alice_role = live_client.get_role("alice")
+    live_client.set_role("bob", role)
+    actual_alice_role = live_client.get_role("bob")
     assert next(actual_alice_role).role == role
 
 
