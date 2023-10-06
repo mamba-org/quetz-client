@@ -1,3 +1,4 @@
+import os
 import re
 import shutil
 import socket
@@ -74,31 +75,31 @@ def wait_for_port(port: int, host: str = "localhost", timeout: float = 5.0):
 @pytest.fixture(scope="module")
 def start_server():
     """Start the server in a separate thread"""
-    # path_to_quetz = f"{os.environ['MAMBA_ROOT_PREFIX']}/envs/quetz-client/bin/quetz"
-    # if not os.path.exists(path_to_quetz):
-    #     path_to_quetz = str(Path.home() / "mambaforge/envs/quetz-client/bin/quetz")
+    path_to_quetz = f"{os.environ['MAMBA_ROOT_PREFIX']}/envs/quetz-client/bin/quetz"
+    if not os.path.exists(path_to_quetz):
+        path_to_quetz = str(Path.home() / "mambaforge/envs/quetz-client/bin/quetz")
 
-    # import subprocess
+    import subprocess
 
-    # server_process = subprocess.Popen(
-    #     [
-    #         path_to_quetz,
-    #         "run",
-    #         "quetz_test",
-    #         "--copy-conf",
-    #         "tests/dev_config.toml",
-    #         "--dev",
-    #         "--delete",
-    #     ]
-    # )
-    # if server_process.poll() is not None:
-    #     raise RuntimeError("Server process failed to start")
-    # wait_for_port(8000)
+    server_process = subprocess.Popen(
+        [
+            path_to_quetz,
+            "run",
+            "quetz_test",
+            "--copy-conf",
+            "tests/dev_config.toml",
+            "--dev",
+            "--delete",
+        ]
+    )
+    if server_process.poll() is not None:
+        raise RuntimeError("Server process failed to start")
+    wait_for_port(8000)
 
     yield
 
-    # server_process.terminate()
-    # server_process.wait()
+    server_process.terminate()
+    server_process.wait()
 
 
 @pytest.fixture(scope="module")
