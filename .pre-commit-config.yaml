@@ -10,6 +10,7 @@ repos:
     rev: v3.9.2
     hooks:
       - id: flake8-conda
+        additional_dependencies: [-c, conda-forge, python=3.11]
   - repo: https://github.com/Quantco/pre-commit-mirrors-isort
     rev: 5.8.0
     hooks:
