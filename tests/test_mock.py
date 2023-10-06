@@ -3,7 +3,7 @@ import pytest
 from quetz_client.client import QuetzClient
 
 from .conftest import temporary_package_file
-
+from pathlib import Path
 
 @pytest.mark.parametrize(
     "role",
@@ -170,3 +170,16 @@ def test_mock_post_file_to_channel(
     # thus we need to access all the requests
     assert len(requests_mock.request_history) <= 2
     assert any(r.method == "POST" for r in requests_mock.request_history)
+
+
+def test_mock_post_file_to_channel_invalid_file(
+    mock_client: QuetzClient,
+):
+    """Test that the client refuses to upload an invalid file that is not a conda package
+
+    This test requires to mock server because no actual request are ever made.
+    The client should exit before talking to the server.
+    """
+    file = Path("./wrong_suffix.txt")
+    with pytest.raises(ValueError):
+        mock_client.post_file_to_channel(channel="doesnotmatter", file=file)

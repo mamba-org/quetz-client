@@ -56,6 +56,16 @@ class Package:
     latest_change: str
 
 
+
+def _assert_file_is_package(file: Path):
+    """Raises an error if the file in question does not look like a conda package"""
+    valid_suffixes =[".tar.bz2", ".conda"]
+    file_has_valid_suffix = any(file.name.endswith(suffix) for suffix in valid_suffixes)
+    if not file_has_valid_suffix:
+        raise ValueError(f"File {file} does not look like a conda package. It should end in one of {valid_suffixes}.")
+
+    return False
+
 @dataclass
 class QuetzClient:
     session: requests.Session
@@ -172,6 +182,9 @@ class QuetzClient:
 
     def post_file_to_channel(self, channel: str, file: Path, force: bool = False):
         file_path = Path(file)
+
+        _assert_file_is_package(file_path)
+
         url = f"{self.url}/api/channels/{channel}/upload/{file_path.name}"
         body_bytes = file_path.read_bytes()
 
