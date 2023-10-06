@@ -70,8 +70,8 @@ def test_live_set_role(
     role,
 ):
     live_client.set_role("bob", role)
-    actual_alice_role = live_client.get_role("bob")
-    assert next(actual_alice_role).role == role
+    actual_bob_role = live_client.get_role("bob")
+    assert next(actual_bob_role).role == role
 
 
 def test_live_post_file_to_channel(
