@@ -1,4 +1,6 @@
 import os
+from urllib.parse import urlparse
+import json
 from typing import Optional, cast
 
 import fire
@@ -6,6 +8,43 @@ from requests.adapters import HTTPAdapter, Retry
 
 from quetz_client.client import QuetzClient
 
+class BearerToken:
+    def __init__(self, token: str):
+        self.token = token
+    
+    def __str__(self):
+        return self.token
+
+class ApiKey:
+    def __init__(self, token: str):
+        self.token = token
+    
+    def __str__(self):
+        return self.token 
+
+def get_auth_token(url: str, token: str) -> str:
+    token = cast(str, token or os.getenv("QUETZ_API_KEY", ""))
+    if token:
+        return ApiKey(token)
+    elif os.getenv("QUETZ_BEARER_TOKEN"):
+        return BearerToken(os.getenv("QUETZ_BEARER_TOKEN"))
+
+    # open the authentication file and read the token
+    with open(os.path.expanduser("~/.mamba/auth/authentication.json")) as f:
+        auth = json.load(f)
+    
+    # check if the host is present in the authentication file
+    host = urlparse(url).netloc
+    if host not in auth:
+        return None
+    
+    if host in auth:
+        credentials = auth[host]
+
+        if credentials["type"] == "BearerToken":
+            return BearerToken(credentials["token"])
+        elif credentials["type"] == "ApiKey":
+            return ApiKey(credentials["token"])
 
 def get_client(
     *,
@@ -37,8 +76,13 @@ def get_client(
     # Initialize the client (do not force the env variables to be set of help on the
     # subcommands does not work without setting them)
     url = cast(str, url or os.getenv("QUETZ_SERVER_URL", ""))
-    token = cast(str, token or os.getenv("QUETZ_API_KEY", ""))
-    client = QuetzClient.from_token(url, token)
+
+    token = get_auth_token(url, token)
+
+    if isinstance(token, ApiKey):
+        client = QuetzClient.from_token(url, str(token))
+    else:
+        client = QuetzClient.from_bearer_token(url, str(token))
 
     # Configure the client with additional flags passed to the CLI
     client.session.verify = not insecure

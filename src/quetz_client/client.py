@@ -76,6 +76,12 @@ class QuetzClient:
         session = requests.Session()
         session.headers.update({"X-API-Key": token})
         return cls(session, url=url)
+    
+    @classmethod
+    def from_bearer_token(cls, url: str, token: str) -> "QuetzClient":
+        session = requests.Session()
+        session.headers.update({"Authorization": f"Bearer {token}"})
+        return cls(session, url=url)
 
     def _yield_paginated(
         self, url: str, params: Dict[str, Union[str, int]], limit: int = 20
