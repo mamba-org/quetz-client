@@ -56,15 +56,17 @@ class Package:
     latest_change: str
 
 
-
 def _assert_file_is_package(file: Path):
     """Raises an error if the file in question does not look like a conda package"""
-    valid_suffixes =[".tar.bz2", ".conda"]
+    valid_suffixes = [".tar.bz2", ".conda"]
     file_has_valid_suffix = any(file.name.endswith(suffix) for suffix in valid_suffixes)
     if not file_has_valid_suffix:
-        raise ValueError(f"File {file} does not look like a conda package. It should end in one of {valid_suffixes}.")
+        raise ValueError(
+            f"File {file} does not look like a conda package. It should end in one of {valid_suffixes}."
+        )
 
     return False
+
 
 @dataclass
 class QuetzClient:
@@ -75,6 +77,12 @@ class QuetzClient:
     def from_token(cls, url: str, token: str) -> "QuetzClient":
         session = requests.Session()
         session.headers.update({"X-API-Key": token})
+        return cls(session, url=url)
+
+    @classmethod
+    def from_bearer_token(cls, url: str, token: str) -> "QuetzClient":
+        session = requests.Session()
+        session.headers.update({"Authorization": f"Bearer {token}"})
         return cls(session, url=url)
 
     def _yield_paginated(

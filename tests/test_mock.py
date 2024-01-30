@@ -1,9 +1,11 @@
+from pathlib import Path
+
 import pytest
 
 from quetz_client.client import QuetzClient
 
 from .conftest import temporary_package_file
-from pathlib import Path
+
 
 @pytest.mark.parametrize(
     "role",
