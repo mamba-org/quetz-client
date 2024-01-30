@@ -25,23 +25,16 @@ class ApiKey:
         return self.token
 
 
-def get_auth_token(url: str, token: Optional[str]) -> Union[ApiKey, BearerToken, None]:
-    token = cast(str, token or os.getenv("QUETZ_API_KEY", ""))
-    bearer_token = os.getenv("QUETZ_BEARER_TOKEN")
-
-    if token:
-        return ApiKey(token)
-    elif bearer_token is not None:
-        return BearerToken(bearer_token)
-
-    # open the authentication file and read the token
-    with open(os.path.expanduser("~/.mamba/auth/authentication.json")) as f:
+def get_auth_token_from_file(file: str, url: str):
+    """
+    Attempt to load the token from the `authentication.json` file that
+    is created by `micromamba auth login`.
+    """
+    with open(file) as f:
         auth = json.load(f)
 
     # check if the host is present in the authentication file
     host = urlparse(url).netloc
-    if host not in auth:
-        return None
 
     if host in auth:
         credentials = auth[host]
@@ -52,6 +45,19 @@ def get_auth_token(url: str, token: Optional[str]) -> Union[ApiKey, BearerToken,
             return ApiKey(credentials["token"])
 
     return None
+
+
+def get_auth_token(
+    url: str, token: Optional[str], bearer_token: Optional[str]
+) -> Union[ApiKey, BearerToken, None]:
+    if token:
+        return ApiKey(str(token))
+    elif bearer_token is not None:
+        return BearerToken(str(bearer_token))
+
+    # open the authentication file and read the token
+    mamba_auth = os.path.expanduser("~/.mamba/auth/authentication.json")
+    return get_auth_token_from_file(mamba_auth, url)
 
 
 def get_client(
@@ -83,16 +89,25 @@ def get_client(
     """
     # Initialize the client (do not force the env variables to be set of help on the
     # subcommands does not work without setting them)
-    url = cast(str, url or os.getenv("QUETZ_SERVER_URL", ""))
+    url = url or os.getenv("QUETZ_SERVER_URL")
 
-    parsed_token = get_auth_token(url, token)
+    if not url:
+        raise ValueError("Please specify a server url with --url or QUETZ_SERVER_URL")
+
+    token = token or os.getenv("QUETZ_API_KEY")
+    bearer_token = os.getenv("QUETZ_BEARER_TOKEN")
+
+    parsed_token = get_auth_token(url, token, bearer_token)
 
     if isinstance(parsed_token, BearerToken):
         client = QuetzClient.from_bearer_token(url, str(parsed_token))
     elif isinstance(parsed_token, ApiKey):
         client = QuetzClient.from_token(url, str(parsed_token))
     else:
-        client = QuetzClient.from_token(url, "")
+        raise ValueError(
+            "Please specify a token with --token or QUETZ_API_KEY or "
+            "QUETZ_BEARER_TOKEN or login with `micromamba auth login`"
+        )
 
     # Configure the client with additional flags passed to the CLI
     client.session.verify = not insecure
